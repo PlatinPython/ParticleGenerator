@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import platinpython.vfxgenerator.util.Util;
 
@@ -40,14 +41,17 @@ public class ToggleTextButton extends UpdateableWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        guiGraphics.blitNineSliced(
-            WIDGETS_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0,
-            this.getTextureY()
+        guiGraphics.blitSprite(
+            this.active && this.isHoveredOrFocused()
+                ? new ResourceLocation("widget/button_highlighted")
+                : new ResourceLocation("widget/button"),
+            this.getX(), this.getY(), this.width, this.height
         );
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderScrollingString(guiGraphics, minecraft.font, 2, getFGColor() | Mth.ceil(this.alpha * 255.0F) << 24);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.setValueFunction.accept(!this.valueSupplier.get());

@@ -1,20 +1,22 @@
 package platinpython.vfxgenerator.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,13 +34,13 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.util.ClientUtils;
-import platinpython.vfxgenerator.util.network.NetworkHandler;
-import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPKT;
+import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPayload;
 import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
+import platinpython.vfxgenerator.util.registries.DataComponentRegistry;
 
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
     public static final String INVERTED_KEY = INVERTED.getName();
 
     public VFXGeneratorBlock() {
-        super(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion());
+        super(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).noOcclusion());
         this.registerDefaultState(
             this.stateDefinition.any().setValue(INVERTED, Boolean.FALSE).setValue(POWERED, Boolean.FALSE)
         );
@@ -63,16 +65,15 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
     @Override
     public void appendHoverText(
         ItemStack stack,
-        @Nullable BlockGetter level,
+        Item.TooltipContext context,
         List<Component> tooltip,
         TooltipFlag flag
     ) {
-        if (stack.getTagElement("particleData") != null) {
+        if (stack.has(DataComponentRegistry.PARTICLE_DATA)) {
             tooltip.add(ClientUtils.getGuiTranslationTextComponent("dataSaved"));
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos) {
         return Shapes.empty();
@@ -109,13 +110,17 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
             : null;
     }
 
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return MapCodec.unit(VFXGeneratorBlock::new);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(
         BlockState state,
@@ -132,7 +137,6 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
@@ -140,14 +144,12 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public InteractionResult use(
+    public InteractionResult useWithoutItem(
         BlockState state,
         Level level,
         BlockPos pos,
         Player player,
-        InteractionHand hand,
         BlockHitResult hit
     ) {
         if (player.getMainHandItem().isEmpty()) {
@@ -168,48 +170,31 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void setPlacedBy(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        @Nullable LivingEntity placer,
-        ItemStack stack
-    ) {
-        if (stack.getTagElement("particleData") != null) {
-            BlockEntity tileEntity = level.getBlockEntity(pos);
-            if (tileEntity instanceof VFXGeneratorBlockEntity) {
-                ((VFXGeneratorBlockEntity) tileEntity).loadFromTag(stack.getOrCreateTag());
-            }
-        }
-    }
-
-    @Override
     public ItemStack getCloneItemStack(
         BlockState state,
         HitResult target,
-        BlockGetter world,
+        LevelReader level,
         BlockPos pos,
         Player player
     ) {
         ItemStack stack = new ItemStack(this);
-        CompoundTag tag = stack.getOrCreateTag();
-        CompoundTag blockStateTag = new CompoundTag();
-        blockStateTag.putString(INVERTED_KEY, state.getValue(INVERTED).toString());
-        tag.put(BlockItem.BLOCK_STATE_TAG, blockStateTag);
-        stack.setTag(tag);
-        BlockEntity tileEntity = world.getBlockEntity(pos);
-        if (tileEntity instanceof VFXGeneratorBlockEntity) {
-            stack.setTag(((VFXGeneratorBlockEntity) tileEntity).saveToTag(tag));
+        stack.update(
+            DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY,
+            blockItemStateProperties -> blockItemStateProperties.with(INVERTED, state.getValue(INVERTED))
+        );
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity) {
+            stack.applyComponents(vfxGeneratorBlockEntity.collectComponents());
         }
         return stack;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!level.isClientSide && !state.is(newState.getBlock())) {
-            NetworkHandler.INSTANCE
-                .send(PacketDistributor.ALL.noArg(), new VFXGeneratorDestroyParticlesPKT(Vec3.atCenterOf(pos)));
+        if (level instanceof ServerLevel serverLevel && !state.is(newState.getBlock())) {
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel, new ChunkPos(pos), new VFXGeneratorDestroyParticlesPayload(Vec3.atCenterOf(pos))
+            );
         }
         super.onRemove(state, level, pos, newState, isMoving);
     }

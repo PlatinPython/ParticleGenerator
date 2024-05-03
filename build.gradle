@@ -1,9 +1,8 @@
 plugins {
+    id 'java-library'
     id 'eclipse'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'idea'
+    id 'net.neoforged.gradle.userdev' version '7.0.118'
     id 'com.diffplug.spotless' version '6.25.0'
 }
 
@@ -11,62 +10,41 @@ version = "${minecraft_version}-${mod_version}"
 group = 'platinpython.vfxgenerator'
 archivesBaseName = 'VFX Generator'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 jarJar.enable()
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-minecraft {
-    mappings channel: 'parchment', version: '2023.07.16-1.20.1'
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+minecraft.accessTransformers.file 'src/main/resources/META-INF/accesstransformers.cfg'
 
-    runs {
-        client {
-            workingDirectory project.file('run/client')
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
 
-            property 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
 
-            property 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
 
-            args '--username', 'Player###'
-
-            mods {
-                vfxgenerator {
-                    source sourceSets.main
-                }
-            }
+        dependencies {
+            runtime 'org.l33tlabs.twl:pngdecoder:1.0'
         }
+    }
 
-        server {
-            workingDirectory project.file('run/server')
+    client {
+        systemProperty 'forge.enabledGameTestNamespaces', 'vfxgenerator'
 
-            property 'forge.logging.markers', 'REGISTRIES'
+        programArguments.addAll '--username', 'Player###'
+    }
 
-            property 'forge.logging.console.level', 'debug'
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', 'vfxgenerator'
 
-            mods {
-                vfxgenerator {
-                    source sourceSets.main
-                }
-            }
-        }
+        programArgument '--nogui'
+    }
 
-        data {
-            workingDirectory project.file('run/data')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'vfxgenerator', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                vfxgenerator {
-                    source sourceSets.main
-                }
-            }
-        }
+    data {
+        programArguments.addAll '--mod', 'vfxgenerator', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
@@ -82,16 +60,16 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.1.3'
+    implementation 'net.neoforged:neoforge:20.6.18-beta'
 
     compileOnly "org.jspecify:jspecify:0.3.0"
 
-    minecraftLibrary 'org.l33tlabs.twl:pngdecoder:1.0'
+    implementation 'org.l33tlabs.twl:pngdecoder:1.0'
     jarJar('org.l33tlabs.twl:pngdecoder:[1.0,)') {
         transitive(false)
     }
 
-    runtimeOnly fg.deobf("curse.maven:atlasviewer-633577:4762356")
+//    runtimeOnly "curse.maven:atlasviewer-633577:4762356"
 }
 
 tasks.jarJar.configure {
@@ -107,13 +85,14 @@ jar {
                 "Specification-Vendor"    : "PlatinPython",
                 "Specification-Version"   : "1",
                 "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
+                "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "PlatinPython",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
+// TODO: Figure out why it's still needed
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

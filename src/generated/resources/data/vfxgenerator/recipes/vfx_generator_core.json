@@ -6,10 +6,10 @@
       "item": "minecraft:end_rod"
     },
     "G": {
-      "tag": "forge:glass"
+      "tag": "c:glass_blocks"
     },
     "R": {
-      "tag": "forge:storage_blocks/redstone"
+      "tag": "c:storage_blocks/redstone"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "ERE"
   ],
   "result": {
-    "item": "vfxgenerator:vfx_generator_core"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "vfxgenerator:vfx_generator_core"
+  }
 }

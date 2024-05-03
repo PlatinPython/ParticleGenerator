@@ -1,7 +1,8 @@
 package platinpython.vfxgenerator.util.particle;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.Decoder;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.stream.Stream;
@@ -10,8 +11,8 @@ public abstract class ParticleType {
     public static final Decoder<ParticleType> FILE_DECODER =
         ParticleTypes.CODEC.dispatch(ParticleType::type, ParticleTypes::fileDecoder);
 
-    public static final Codec<ParticleType> CODEC =
-        ParticleTypes.CODEC.dispatch(ParticleType::type, ParticleTypes::codec);
+    public static final StreamCodec<FriendlyByteBuf, ParticleType> STREAM_CODEC =
+        ParticleTypes.STREAM_CODEC.dispatch(ParticleType::type, ParticleTypes::streamCodec);
 
     private final boolean supportsColor;
 

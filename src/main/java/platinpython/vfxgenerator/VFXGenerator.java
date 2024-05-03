@@ -1,9 +1,9 @@
 package platinpython.vfxgenerator;
 
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import platinpython.vfxgenerator.data.DataGatherer;
@@ -18,13 +18,12 @@ public class VFXGenerator {
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-    public VFXGenerator() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(DataGatherer::onGatherData);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(VFXGenerator::addItemsToTab);
+    public VFXGenerator(IEventBus bus) {
+        bus.addListener(DataGatherer::onGatherData);
+        bus.addListener(VFXGenerator::addItemsToTab);
+        bus.addListener(NetworkHandler::register);
 
-        RegistryHandler.register();
-
-        NetworkHandler.register();
+        RegistryHandler.register(bus);
     }
 
     public static void addItemsToTab(BuildCreativeModeTabContentsEvent event) {

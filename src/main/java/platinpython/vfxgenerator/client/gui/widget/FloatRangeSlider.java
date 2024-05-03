@@ -4,12 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import platinpython.vfxgenerator.util.Util;
@@ -17,6 +17,12 @@ import platinpython.vfxgenerator.util.Util;
 import java.text.DecimalFormat;
 
 public class FloatRangeSlider extends UpdateableWidget {
+    private static final ResourceLocation SLIDER_SPRITE = new ResourceLocation("widget/slider");
+    private static final ResourceLocation HIGHLIGHTED_SPRITE = new ResourceLocation("widget/slider_highlighted");
+    private static final ResourceLocation SLIDER_HANDLE_SPRITE = new ResourceLocation("widget/slider_handle");
+    private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE =
+        new ResourceLocation("widget/slider_handle_highlighted");
+
     private final double minValue, maxValue;
     private final float stepSize;
     private final DecimalFormat format;
@@ -78,11 +84,12 @@ public class FloatRangeSlider extends UpdateableWidget {
         this.updateMessage();
     }
 
-    private int getTextureY(boolean isHovered) {
-        if (!this.active) {
-            return 40;
-        }
-        return isHovered ? 60 : 40;
+    protected ResourceLocation getSprite() {
+        return this.isFocused() && this.active ? HIGHLIGHTED_SPRITE : SLIDER_SPRITE;
+    }
+
+    protected ResourceLocation getHandleSprite(boolean hovered) {
+        return this.isHovered && this.active ? SLIDER_HANDLE_HIGHLIGHTED_SPRITE : SLIDER_HANDLE_SPRITE;
     }
 
     public boolean isLeftHovered(int mouseX) {
@@ -103,21 +110,14 @@ public class FloatRangeSlider extends UpdateableWidget {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION, this.getX(), this.getY(), 0, this.isFocused() ? 20 : 0,
-            this.width / 2, this.height
-        );
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2,
-            this.isFocused() ? 20 : 0, this.width / 2, this.height
-        );
+        guiGraphics.blitSprite(getSprite(), this.getX(), this.getY(), this.width, this.height);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blitWithBorder(
-            AbstractSliderButton.SLIDER_LOCATION,
-            this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)) + 4, this.getY() + 3, 0, 40,
+        guiGraphics.blitSprite(
+            new ResourceLocation("widget/button"),
+            this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)) + 4, this.getY() + 3,
             ((int) (this.rightSliderValue * (double) (this.width - 8)))
                 - ((int) (this.leftSliderValue * (double) (this.width - 8))),
-            this.height - 6, 200, 20, 2
+            this.height - 6
         );
         if (isLeftHovered(mouseX)) {
             renderRightBg(guiGraphics, mouseX);
@@ -134,28 +134,16 @@ public class FloatRangeSlider extends UpdateableWidget {
     }
 
     private void renderRightBg(GuiGraphics guiGraphics, int mouseX) {
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION,
-            this.getX() + (int) (this.rightSliderValue * (double) (this.width - 8)), this.getY(), 0,
-            this.getTextureY(isRightHovered(mouseX)), 4, this.height
-        );
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION,
-            this.getX() + (int) (this.rightSliderValue * (double) (this.width - 8)) + 4, this.getY(), 196,
-            this.getTextureY(isRightHovered(mouseX)), 4, this.height
+        guiGraphics.blitSprite(
+            getHandleSprite(isRightHovered(mouseX)),
+            this.getX() + (int) (this.rightSliderValue * (double) (this.width - 8)), this.getY(), 8, this.getHeight()
         );
     }
 
     private void renderLeftBg(GuiGraphics guiGraphics, int mouseX) {
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION,
-            this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)), this.getY(), 0,
-            this.getTextureY(isLeftHovered(mouseX)), 4, this.height
-        );
-        guiGraphics.blit(
-            AbstractSliderButton.SLIDER_LOCATION,
-            this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)) + 4, this.getY(), 196,
-            this.getTextureY(isLeftHovered(mouseX)), 4, this.height
+        guiGraphics.blitSprite(
+            getHandleSprite(isLeftHovered(mouseX)),
+            this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)), this.getY(), 8, this.getHeight()
         );
     }
 
@@ -165,6 +153,7 @@ public class FloatRangeSlider extends UpdateableWidget {
                 / 2);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.isLeftSelected = getIsLeftClicked(mouseX);

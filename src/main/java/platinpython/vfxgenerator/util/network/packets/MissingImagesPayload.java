@@ -3,16 +3,20 @@ package platinpython.vfxgenerator.util.network.packets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.Util;
-import platinpython.vfxgenerator.util.network.NetworkHandler;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
 import java.io.IOException;
@@ -20,28 +24,22 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class MissingImagesPKT {
-    private static final Codec<ImmutableList<ResourceLocation>> CODEC =
-        ResourceLocation.CODEC.listOf().xmap(ImmutableList::copyOf, Function.identity());
+public record MissingImagesPayload(ImmutableList<ResourceLocation> list) implements CustomPacketPayload {
+    public static final Type<MissingImagesPayload> TYPE =
+        new Type<>(Util.createNamespacedResourceLocation("missing_images"));
+    public static final StreamCodec<ByteBuf, MissingImagesPayload> STREAM_CODEC =
+        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list())
+            .map(ImmutableList::copyOf, Function.identity())
+            .map(MissingImagesPayload::new, MissingImagesPayload::list);
 
-    private final ImmutableList<ResourceLocation> list;
-
-    public MissingImagesPKT(ImmutableList<ResourceLocation> list) {
-        this.list = list;
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static void encode(MissingImagesPKT message, FriendlyByteBuf buffer) {
-        buffer.writeJsonWithCodec(CODEC, message.list);
-    }
-
-    public static MissingImagesPKT decode(FriendlyByteBuf buffer) {
-        return new MissingImagesPKT(buffer.readJsonWithCodec(CODEC));
-    }
-
-    public static class Handler {
-        public static void handle(MissingImagesPKT message, Supplier<NetworkEvent.Context> context) {
+    public static class Handler implements IPayloadHandler<MissingImagesPayload> {
+        public void handle(MissingImagesPayload message, IPayloadContext context) {
             // TODO look into improving memory footprint
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             ImmutableMap<ResourceLocation, IoSupplier<InputStream>> requiredImages = DataManager.requiredImages();
@@ -67,17 +65,14 @@ public class MissingImagesPKT {
             while (buffer.readableBytes() > Util.MAX_PAYLOAD_SIZE - 6) {
                 byte[] data = new byte[Util.MAX_PAYLOAD_SIZE - 6];
                 buffer.readBytes(data);
-                NetworkHandler.INSTANCE.send(
-                    PacketDistributor.PLAYER.with(context.get()::getSender), new MissingImagesDataPKT(false, data)
-                );
+                PacketDistributor
+                    .sendToPlayer((ServerPlayer) context.player(), new MissingImagesDataPayload(false, data));
             }
             byte[] data = new byte[buffer.readableBytes()];
             buffer.readBytes(data);
-            NetworkHandler.INSTANCE
-                .send(PacketDistributor.PLAYER.with(context.get()::getSender), new MissingImagesDataPKT(true, data));
-            NetworkHandler.INSTANCE.send(
-                PacketDistributor.PLAYER.with(context.get()::getSender),
-                new UpdateRequiredImagesPKT(DataManager.requiredImages().keySet())
+            PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new MissingImagesDataPayload(true, data));
+            PacketDistributor.sendToPlayer(
+                (ServerPlayer) context.player(), new UpdateRequiredImagesPayload(DataManager.requiredImages().keySet())
             );
         }
     }

@@ -11,9 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "vfxgenerator:vfx_generator_core"
-            ]
+            "items": "vfxgenerator:vfx_generator_core"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_vfx_generator_core",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_vfx_generator_core"
     ]
   ],
   "rewards": {
     "recipes": [
       "vfxgenerator:vfx_generator"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

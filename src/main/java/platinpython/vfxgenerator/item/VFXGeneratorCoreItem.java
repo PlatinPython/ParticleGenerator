@@ -2,9 +2,8 @@ package platinpython.vfxgenerator.item;
 
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.network.PacketDistributor;
-import platinpython.vfxgenerator.util.network.NetworkHandler;
-import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPKT;
+import net.neoforged.neoforge.network.PacketDistributor;
+import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPayload;
 
 public class VFXGeneratorCoreItem extends Item {
     public VFXGeneratorCoreItem(Properties properties) {
@@ -16,9 +15,8 @@ public class VFXGeneratorCoreItem extends Item {
     public void onDestroyed(ItemEntity itemEntity) {
         // noinspection resource
         if (!itemEntity.level().isClientSide) {
-            NetworkHandler.INSTANCE.send(
-                PacketDistributor.TRACKING_ENTITY.with(() -> itemEntity),
-                new VFXGeneratorDestroyParticlesPKT(itemEntity.position())
+            PacketDistributor.sendToPlayersTrackingEntity(
+                itemEntity, new VFXGeneratorDestroyParticlesPayload(itemEntity.position())
             );
         }
     }

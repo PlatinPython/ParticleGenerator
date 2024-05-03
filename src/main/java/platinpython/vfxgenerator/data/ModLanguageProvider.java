@@ -1,7 +1,7 @@
 package platinpython.vfxgenerator.data;
 
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.registries.BlockRegistry;
 import platinpython.vfxgenerator.util.registries.ItemRegistry;
@@ -13,8 +13,8 @@ public class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        add(VFXGenerator.MOD_ID + ".pack_title", "VFXGenerator Textures");
-        add(VFXGenerator.MOD_ID + ".pack_description", "Textures to make VFXGenerator work correctly");
+        add(VFXGenerator.MOD_ID + ".pack_title", "VFX Generator Textures");
+        add(VFXGenerator.MOD_ID + ".pack_description", "Textures to make VFX Generator work correctly");
 
         add(ItemRegistry.VFX_GENERATOR_CORE.get(), "VFX Generator Core");
 

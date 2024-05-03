@@ -3,40 +3,39 @@ package platinpython.vfxgenerator.util.network.packets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import platinpython.vfxgenerator.VFXGenerator;
+import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.resources.DataManager;
 import platinpython.vfxgenerator.util.resources.client.CacheHandler;
 import platinpython.vfxgenerator.util.resources.client.VirtualPack;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Optional;
-import java.util.function.Supplier;
 
-public class UpdateRequiredImagesPKT {
-    private static final Codec<ImmutableSet<ResourceLocation>> CODEC =
-        ResourceLocation.CODEC.listOf().xmap(ImmutableSet::copyOf, ImmutableSet::asList);
+public record UpdateRequiredImagesPayload(ImmutableSet<ResourceLocation> set) implements CustomPacketPayload {
+    public static final Type<UpdateRequiredImagesPayload> TYPE =
+        new Type<>(Util.createNamespacedResourceLocation("update_required_images"));
+    public static final StreamCodec<ByteBuf, UpdateRequiredImagesPayload> STREAM_CODEC =
+        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.collection(HashSet::new))
+            .map(ImmutableSet::copyOf, HashSet::new)
+            .map(UpdateRequiredImagesPayload::new, UpdateRequiredImagesPayload::set);
 
-    private final ImmutableSet<ResourceLocation> set;
-
-    public UpdateRequiredImagesPKT(ImmutableSet<ResourceLocation> set) {
-        this.set = set;
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static void encode(UpdateRequiredImagesPKT message, FriendlyByteBuf buffer) {
-        buffer.writeJsonWithCodec(CODEC, message.set);
-    }
-
-    public static UpdateRequiredImagesPKT decode(FriendlyByteBuf buffer) {
-        return new UpdateRequiredImagesPKT(buffer.readJsonWithCodec(CODEC));
-    }
-
-    public static class Handler {
-        public static void handle(UpdateRequiredImagesPKT message, Supplier<NetworkEvent.Context> context) {
+    public static class Handler implements IPayloadHandler<UpdateRequiredImagesPayload> {
+        public void handle(UpdateRequiredImagesPayload message, IPayloadContext context) {
             // noinspection OptionalGetWithoutIsPresent
             DataManager.setRequiredImages(
                 message.set.stream()

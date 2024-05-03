@@ -24,17 +24,16 @@ public class ParticleTextureSelectionScreen extends Screen {
         }
 
         this.textureOptionsList = new TextureOptionsList(
-            this.minecraft, this.width, this.height, 32, this.height - 32, 50, this.parent.particleData::setSelected,
+            this.minecraft, this.width, this.height - 64, 32, 50, this.parent.particleData::setSelected,
             this.parent.particleData::getSelected, this.parent::sendToServer
         );
 
-        this.addWidget(this.textureOptionsList);
+        this.addRenderableWidget(this.textureOptionsList);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
-        this.textureOptionsList.render(guiGraphics, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class ParticleTextureSelectionScreen extends Screen {
         if (this.minecraft == null || this.minecraft.player == null) {
             return;
         }
-        if (Container.stillValidBlockEntity(this.parent.tileEntity, this.minecraft.player)) {
+        if (!Container.stillValidBlockEntity(this.parent.blockEntity, this.minecraft.player)) {
             this.parent.onClose();
         }
         this.textureOptionsList.children().forEach(TextureOptionsList.TextureOptionsListEntry::updateValue);

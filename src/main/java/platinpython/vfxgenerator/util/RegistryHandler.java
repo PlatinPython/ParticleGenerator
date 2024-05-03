@@ -1,33 +1,35 @@
 package platinpython.vfxgenerator.util;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
 import platinpython.vfxgenerator.util.registries.BlockRegistry;
+import platinpython.vfxgenerator.util.registries.DataComponentRegistry;
 import platinpython.vfxgenerator.util.registries.ItemRegistry;
 
 public class RegistryHandler {
-    public static final DeferredRegister<Block> BLOCKS =
-        DeferredRegister.create(ForgeRegistries.BLOCKS, VFXGenerator.MOD_ID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(VFXGenerator.MOD_ID);
 
-    public static final DeferredRegister<Item> ITEMS =
-        DeferredRegister.create(ForgeRegistries.ITEMS, VFXGenerator.MOD_ID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(VFXGenerator.MOD_ID);
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
-        DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, VFXGenerator.MOD_ID);
+        DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, VFXGenerator.MOD_ID);
 
-    public static void register() {
-        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        BLOCK_ENTITY_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS =
+        DeferredRegister.createDataComponents(VFXGenerator.MOD_ID);
+
+    public static void register(IEventBus bus) {
+        BLOCKS.register(bus);
+        ITEMS.register(bus);
+        BLOCK_ENTITY_TYPES.register(bus);
+        DATA_COMPONENTS.register(bus);
 
         BlockRegistry.register();
         ItemRegistry.register();
         BlockEntityRegistry.register();
+        DataComponentRegistry.register();
     }
 }

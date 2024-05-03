@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[46,)"
+loaderVersion = "[2,)"
 license = "MIT"
 issueTrackerURL = "https://github.com/PlatinPython/VFXGenerator/issues"
 
@@ -13,16 +13,13 @@ logoFile = "logo.png"
 credits = "Thanks TobiBenzi for modeling and texturing."
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/vfx-generator"
 
+[[accessTransformers]]
+file = "META-INF/accesstransformers.cfg"
+
 [[dependencies.vfxgenerator]]
-modId = "forge"
-mandatory = true
-versionRange = "[46,)"
-ordering = "NONE"
-side = "BOTH"
+modId = "neoforge"
+versionRange = "[20.5,)"
 
 [[dependencies.vfxgenerator]]
 modId = "minecraft"
-mandatory = true
-versionRange = "[1.20,1.20.2)"
-ordering = "NONE"
-side = "BOTH"
+versionRange = "[1.20.5,)"

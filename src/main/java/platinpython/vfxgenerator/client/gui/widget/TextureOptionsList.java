@@ -22,15 +22,13 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
         int width,
         int height,
         int top,
-        int bottom,
         int itemHeight,
         Consumer<TreeSet<ResourceLocation>> setValueFunction,
         Supplier<TreeSet<ResourceLocation>> valueSupplier,
         Runnable applyValueFunction
     ) {
-        super(minecraft, width, height, top, bottom, itemHeight);
+        super(minecraft, width, height, top, itemHeight);
         this.init(setValueFunction, valueSupplier, applyValueFunction);
-        this.setRenderBackground(false);
     }
 
     private void init(
@@ -54,12 +52,12 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
         switch (list.size() % 3) {
             case 1 -> addEntry(
                 TextureOptionsListEntry.addOneTexture(
-                    this.width, list.get(list.size() - 1), setValueFunction, valueSupplier, applyValueFunction
+                    this.width, list.getLast(), setValueFunction, valueSupplier, applyValueFunction
                 )
             );
             case 2 -> addEntry(
                 TextureOptionsListEntry.addTwoTextures(
-                    this.width, list.get(list.size() - 2), list.get(list.size() - 1), setValueFunction, valueSupplier,
+                    this.width, list.get(list.size() - 2), list.getLast(), setValueFunction, valueSupplier,
                     applyValueFunction
                 )
             );

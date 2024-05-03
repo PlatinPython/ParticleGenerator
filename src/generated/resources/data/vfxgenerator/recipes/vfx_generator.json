@@ -15,7 +15,7 @@
     " S "
   ],
   "result": {
-    "item": "vfxgenerator:vfx_generator"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "vfxgenerator:vfx_generator"
+  }
 }

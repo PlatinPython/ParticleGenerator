@@ -1,6 +1,8 @@
 package platinpython.vfxgenerator.block.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -14,6 +16,7 @@ import platinpython.vfxgenerator.util.Color;
 import platinpython.vfxgenerator.util.data.ParticleData;
 import platinpython.vfxgenerator.util.particle.ParticleType;
 import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
+import platinpython.vfxgenerator.util.registries.DataComponentRegistry;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,6 +28,10 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
 
     public VFXGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.VFX_GENERATOR.get(), pos, state);
+    }
+
+    public ParticleData getParticleData() {
+        return particleData;
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
@@ -118,24 +125,40 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        CompoundTag particleData = componentInput.get(DataComponentRegistry.PARTICLE_DATA);
+        if (particleData != null) {
+            this.particleData.loadFromTag(particleData);
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(DataComponentRegistry.PARTICLE_DATA, this.particleData.saveToTag());
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         saveToTag(tag);
     }
 
     @Override
-    public void load(CompoundTag tag) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         loadFromTag(tag);
-        super.load(tag);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        return saveToTag(super.getUpdateTag());
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return saveToTag(super.getUpdateTag(provider));
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        super.handleUpdateTag(tag);
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+        super.handleUpdateTag(tag, provider);
         loadFromTag(tag);
     }
 
@@ -145,13 +168,7 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        if (pkt.getTag() != null) {
-            loadFromTag(pkt.getTag());
-        }
-    }
-
-    public ParticleData getParticleData() {
-        return particleData;
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        loadFromTag(pkt.getTag());
     }
 }

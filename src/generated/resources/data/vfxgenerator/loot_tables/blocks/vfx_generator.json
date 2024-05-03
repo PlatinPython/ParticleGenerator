@@ -9,13 +9,9 @@
       ]
     },
     {
-      "function": "minecraft:copy_nbt",
-      "ops": [
-        {
-          "op": "replace",
-          "source": "particleData",
-          "target": "particleData"
-        }
+      "function": "minecraft:copy_components",
+      "include": [
+        "vfxgenerator:particle_data"
       ],
       "source": "block_entity"
     }

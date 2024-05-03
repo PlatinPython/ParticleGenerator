@@ -28,6 +28,6 @@
   "gui.vfxgenerator.spawnZ": "Z Position",
   "gui.vfxgenerator.ticks": "Ticks",
   "item.vfxgenerator.vfx_generator_core": "VFX Generator Core",
-  "vfxgenerator.pack_description": "Textures to make VFXGenerator work correctly",
-  "vfxgenerator.pack_title": "VFXGenerator Textures"
+  "vfxgenerator.pack_description": "Textures to make VFX Generator work correctly",
+  "vfxgenerator.pack_title": "VFX Generator Textures"
 }

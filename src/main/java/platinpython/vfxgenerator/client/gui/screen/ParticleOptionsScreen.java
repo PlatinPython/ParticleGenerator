@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.neoforged.neoforge.network.PacketDistributor;
 import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.client.gui.widget.ToggleButton;
 import platinpython.vfxgenerator.client.gui.widget.VFXGeneratorOptionsList;
@@ -14,20 +15,19 @@ import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Color;
 import platinpython.vfxgenerator.util.Constants;
 import platinpython.vfxgenerator.util.data.ParticleData;
-import platinpython.vfxgenerator.util.network.NetworkHandler;
-import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDataSyncPKT;
+import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDataSyncPayload;
 
 public class ParticleOptionsScreen extends Screen {
-    protected final VFXGeneratorBlockEntity tileEntity;
+    protected final VFXGeneratorBlockEntity blockEntity;
     protected final ParticleData particleData;
 
     @SuppressWarnings("NotNullFieldNotInitialized")
     private VFXGeneratorOptionsList optionsList;
 
-    public ParticleOptionsScreen(VFXGeneratorBlockEntity tileEntity) {
+    public ParticleOptionsScreen(VFXGeneratorBlockEntity blockEntity) {
         super(Component.empty());
-        this.tileEntity = tileEntity;
-        this.particleData = tileEntity.getParticleData();
+        this.blockEntity = blockEntity;
+        this.particleData = blockEntity.getParticleData();
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -38,10 +38,10 @@ public class ParticleOptionsScreen extends Screen {
         }
 
         addRenderableWidget(Button.builder(ClientUtils.getGuiTranslationTextComponent("areaBox"), button -> {
-            if (tileEntity.getBlockPos().equals(BoxRendering.currentRenderPos)) {
+            if (blockEntity.getBlockPos().equals(BoxRendering.currentRenderPos)) {
                 BoxRendering.currentRenderPos = null;
             } else {
-                BoxRendering.currentRenderPos = tileEntity.getBlockPos();
+                BoxRendering.currentRenderPos = blockEntity.getBlockPos();
             }
         }).bounds(6, this.height - 26, 120, 20).build());
 
@@ -52,8 +52,7 @@ public class ParticleOptionsScreen extends Screen {
             )
         );
 
-        this.optionsList =
-            new VFXGeneratorOptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+        this.optionsList = new VFXGeneratorOptionsList(this.minecraft, this.width, this.height - 64, 32, 25);
 
         this.optionsList.addButton(
             ClientUtils.getGuiTranslationTextComponent("selectTypes"),
@@ -241,17 +240,15 @@ public class ParticleOptionsScreen extends Screen {
 
         this.optionsList.children().forEach((entry) -> entry.setActive(this.particleData.isEnabled()));
 
-        this.addWidget(this.optionsList);
+        this.addRenderableWidget(this.optionsList);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
-        this.optionsList.render(guiGraphics, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         if (!this.particleData.isEnabled()) {
             guiGraphics.fillGradient(0, 32, this.width, this.height - 32, 0xC0101010, 0xD0101010);
         }
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         guiGraphics.drawCenteredString(
             this.font, ClientUtils.getGuiTranslationTextComponent("particle"), this.width / 2, 10, 0xFFFFFFFF
         );
@@ -262,7 +259,7 @@ public class ParticleOptionsScreen extends Screen {
         if (this.minecraft == null || this.minecraft.player == null) {
             return;
         }
-        if (Container.stillValidBlockEntity(this.tileEntity, this.minecraft.player)) {
+        if (!Container.stillValidBlockEntity(this.blockEntity, this.minecraft.player)) {
             this.onClose();
         }
         this.optionsList.children().forEach((entry) -> {
@@ -277,8 +274,10 @@ public class ParticleOptionsScreen extends Screen {
     }
 
     protected final void sendToServer() {
-        NetworkHandler.INSTANCE.sendToServer(
-            new VFXGeneratorDataSyncPKT(this.tileEntity.saveToTag(new CompoundTag()), this.tileEntity.getBlockPos())
+        PacketDistributor.sendToServer(
+            new VFXGeneratorDataSyncPayload(
+                this.blockEntity.saveToTag(new CompoundTag()), this.blockEntity.getBlockPos()
+            )
         );
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import platinpython.vfxgenerator.util.Util;
 
@@ -17,9 +18,8 @@ import java.util.List;
 
 public class VFXGeneratorOptionsList
     extends ContainerObjectSelectionList<VFXGeneratorOptionsList.VFXGeneratorOptionsListEntry> {
-    public VFXGeneratorOptionsList(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
-        super(minecraft, width, height, top, bottom, itemHeight);
-        this.setRenderBackground(false);
+    public VFXGeneratorOptionsList(Minecraft minecraft, int width, int height, int top, int itemHeight) {
+        super(minecraft, width, height, top, itemHeight);
     }
 
     public void addButton(Component displayText, Runnable onPress) {
@@ -89,7 +89,7 @@ public class VFXGeneratorOptionsList
 
     @Override
     protected int getScrollbarPosition() {
-        return super.getScrollbarPosition() + 32;
+        return this.width / 2 + 156;
     }
 
     public static class VFXGeneratorOptionsListEntry
@@ -102,26 +102,21 @@ public class VFXGeneratorOptionsList
 
         public static VFXGeneratorOptionsListEntry addButton(int guiWidth, Component displayText, Runnable onPress) {
             return new VFXGeneratorOptionsListEntry(new UpdateableWidget(guiWidth / 2 - 155, 0, 310, 20, () -> {}) {
-                @Override
-                public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-                    this.setMessage(displayText);
-                    super.render(guiGraphics, mouseX, mouseY, partialTicks);
-                }
 
                 @Override
                 public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+                    this.setMessage(displayText);
                     Minecraft minecraft = Minecraft.getInstance();
                     Font font = minecraft.font;
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.enableDepthTest();
-                    guiGraphics.blit(
-                        WIDGETS_LOCATION, this.getX(), this.getY(), 0, this.getTextureY(), this.width / 2, this.height
-                    );
-                    guiGraphics.blit(
-                        WIDGETS_LOCATION, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2,
-                        this.getTextureY(), this.width / 2, this.height
+                    guiGraphics.blitSprite(
+                        this.active && this.isHoveredOrFocused()
+                            ? new ResourceLocation("widget/button_highlighted")
+                            : new ResourceLocation("widget/button"),
+                        this.getX(), this.getY(), this.width, this.height
                     );
                     guiGraphics.drawCenteredString(
                         font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2,
@@ -129,6 +124,7 @@ public class VFXGeneratorOptionsList
                     );
                 }
 
+                @SuppressWarnings("deprecation")
                 @Override
                 public void onClick(double mouseX, double mouseY) {
                     onPress.run();
@@ -220,6 +216,9 @@ public class VFXGeneratorOptionsList
 
         public void setActive(boolean active) {
             this.child.active = active;
+            if (!active) {
+                this.child.setFocused(false);
+            }
         }
 
         public void updateValue() {
@@ -278,6 +277,10 @@ public class VFXGeneratorOptionsList
         public void setActive(boolean active) {
             this.firstChild.active = active;
             this.secondChild.active = active;
+            if (!active) {
+                this.firstChild.setFocused(false);
+                this.secondChild.setFocused(false);
+            }
         }
 
         @Override

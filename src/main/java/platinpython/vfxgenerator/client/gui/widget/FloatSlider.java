@@ -3,12 +3,12 @@ package platinpython.vfxgenerator.client.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import platinpython.vfxgenerator.util.Util;
@@ -16,6 +16,12 @@ import platinpython.vfxgenerator.util.Util;
 import java.text.DecimalFormat;
 
 public class FloatSlider extends UpdateableWidget {
+    private static final ResourceLocation SLIDER_SPRITE = new ResourceLocation("widget/slider");
+    private static final ResourceLocation HIGHLIGHTED_SPRITE = new ResourceLocation("widget/slider_highlighted");
+    private static final ResourceLocation SLIDER_HANDLE_SPRITE = new ResourceLocation("widget/slider_handle");
+    private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE =
+        new ResourceLocation("widget/slider_handle_highlighted");
+
     private final double minValue, maxValue;
     private final float stepSize;
     private final DecimalFormat format;
@@ -61,21 +67,25 @@ public class FloatSlider extends UpdateableWidget {
         this.updateMessage();
     }
 
+    protected ResourceLocation getSprite() {
+        return this.isFocused() && this.active ? HIGHLIGHTED_SPRITE : SLIDER_SPRITE;
+    }
+
+    protected ResourceLocation getHandleSprite() {
+        return this.isHovered && this.active ? SLIDER_HANDLE_HIGHLIGHTED_SPRITE : SLIDER_HANDLE_SPRITE;
+    }
+
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, AbstractSliderButton.SLIDER_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        guiGraphics.blitNineSliced(
-            AbstractSliderButton.SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4,
-            200, 20, 0, this.isFocused() ? 20 : 0
-        );
-        guiGraphics.blitNineSliced(
-            AbstractSliderButton.SLIDER_LOCATION, this.getX() + (int) (this.sliderValue * (double) (this.width - 8)),
-            this.getY(), 8, 20, 20, 4, 200, 20, 0, this.isActive() && this.isHovered ? 60 : 40
+        guiGraphics.blitSprite(getSprite(), this.getX(), this.getY(), this.width, this.height);
+        guiGraphics.blitSprite(
+            getHandleSprite(), this.getX() + (int) (this.sliderValue * (double) (this.width - 8)), this.getY(), 8,
+            this.getHeight()
         );
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = this.active ? 16777215 : 10526880;
@@ -94,6 +104,7 @@ public class FloatSlider extends UpdateableWidget {
         this.setSliderValue((mouseX - (double) (this.getX() + 4)) / (double) (this.width - 8));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.setValueFromMouse(mouseX);

@@ -1,13 +1,11 @@
 package platinpython.vfxgenerator.client.gui.widget;
 
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -62,9 +60,9 @@ public class ImageSelectionWidget extends UpdateableWidget {
         guiGraphics.fill(
             this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFF000000
         );
-        guiGraphics.blitWithBorder(
-            WIDGETS_LOCATION, this.getX(), this.getY(), 0, this.selected ? 86 : 66, this.width, this.height, 200, 20, 2,
-            3, 2, 2
+        guiGraphics.blitSprite(
+            this.selected ? new ResourceLocation("widget/button_highlighted") : new ResourceLocation("widget/button"),
+            this.getX(), this.getY(), this.width, this.height
         );
         this.renderImage(
             guiGraphics.pose().last().pose(), this.getX() + 5, this.getY() + 5, this.getX() + this.width - 5,
@@ -74,13 +72,9 @@ public class ImageSelectionWidget extends UpdateableWidget {
 
     @SuppressWarnings("deprecation")
     private void renderImage(Matrix4f matrix, int minX, int minY, int maxX, int maxY) {
-        Minecraft minecraft = Minecraft.getInstance();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tesselator.getBuilder();
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            SourceFactor.SRC_COLOR, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ZERO
-        );
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -94,7 +88,7 @@ public class ImageSelectionWidget extends UpdateableWidget {
         bufferBuilder.vertex(matrix, maxX, maxY, 0F).uv(u1, v1).endVertex();
         bufferBuilder.vertex(matrix, maxX, minY, 0F).uv(u1, v0).endVertex();
         bufferBuilder.vertex(matrix, minX, minY, 0F).uv(u0, v0).endVertex();
-        tesselator.end();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
@@ -108,6 +102,7 @@ public class ImageSelectionWidget extends UpdateableWidget {
         return ClientUtils.getTextureAtlasSprite(MissingTextureAtlasSprite.getLocation());
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         if (Screen.hasControlDown()) {

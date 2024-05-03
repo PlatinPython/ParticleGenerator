@@ -2,6 +2,7 @@ package platinpython.vfxgenerator.client.gui.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.resources.ResourceLocation;
 import platinpython.vfxgenerator.util.Util;
 
 public class ToggleButton extends UpdateableWidget {
@@ -30,22 +31,27 @@ public class ToggleButton extends UpdateableWidget {
                 this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1,
                 0xFF00FF00
             );
-            guiGraphics.blitWithBorder(
-                WIDGETS_LOCATION, this.getX() + this.width / 2, this.getY(), 0, this.getTextureY(), this.width / 2,
-                this.height, 200, 20, 2
+            guiGraphics.blitSprite(
+                this.isHoveredOrFocused()
+                    ? new ResourceLocation("widget/button_highlighted")
+                    : new ResourceLocation("widget/button"),
+                this.getX() + this.width / 2, this.getY(), this.width / 2, this.height
             );
         } else {
             guiGraphics.fill(
                 this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1,
                 0xFFFF0000
             );
-            guiGraphics.blitWithBorder(
-                WIDGETS_LOCATION, this.getX(), this.getY(), 0, this.getTextureY(), this.width / 2, this.height, 200, 20,
-                2
+            guiGraphics.blitSprite(
+                this.isHoveredOrFocused()
+                    ? new ResourceLocation("widget/button_highlighted")
+                    : new ResourceLocation("widget/button"),
+                this.getX(), this.getY(), this.width / 2, this.height
             );
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.setValueFunction.accept(!this.valueSupplier.get());
