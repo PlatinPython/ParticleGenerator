@@ -51,9 +51,8 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
         }
         switch (list.size() % 3) {
             case 1 -> addEntry(
-                TextureOptionsListEntry.addOneTexture(
-                    this.width, list.getLast(), setValueFunction, valueSupplier, applyValueFunction
-                )
+                TextureOptionsListEntry
+                    .addOneTexture(this.width, list.getLast(), setValueFunction, valueSupplier, applyValueFunction)
             );
             case 2 -> addEntry(
                 TextureOptionsListEntry.addTwoTextures(

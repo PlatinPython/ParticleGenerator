@@ -37,11 +37,11 @@ public class BoxRendering {
             return;
         }
         // noinspection DataFlowIssue
-        BlockEntity tileEntity = Minecraft.getInstance().level.getBlockEntity(currentRenderPos);
-        if (!(tileEntity instanceof VFXGeneratorBlockEntity)) {
+        BlockEntity blockEntity = Minecraft.getInstance().level.getBlockEntity(currentRenderPos);
+        if (!(blockEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity)) {
             return;
         }
-        ParticleData particleData = ((VFXGeneratorBlockEntity) tileEntity).getParticleData();
+        ParticleData particleData = vfxGeneratorBlockEntity.getParticleData();
 
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -201,113 +201,113 @@ public class BoxRendering {
         // West side
         builder.vertex(matrix, minX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, minX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, minX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, minX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         // East side
         builder.vertex(matrix, maxX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, maxX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, maxX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, maxX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         // North side (don't repeat the vertical lines that are done by the east/west sides)
         builder.vertex(matrix, maxX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, minY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, minX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, maxY, minZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         // South side (don't repeat the vertical lines that are done by the east/west sides)
         builder.vertex(matrix, minX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, maxX, minY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
 
         builder.vertex(matrix, maxX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
         builder.vertex(matrix, minX, maxY, maxZ)
             .color(red, green, blue, alpha)
-            .uv2(LightTexture.pack(15, 15))
+            .uv2(LightTexture.FULL_BRIGHT)
             .endVertex();
     }
 
