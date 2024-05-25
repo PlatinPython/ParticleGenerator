@@ -34,7 +34,8 @@ public class VFXGeneratorBlockItem extends BlockItem {
             stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData -> customData.update(tag -> {
                 if (tag.contains(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY, Tag.TAG_COMPOUND)) {
                     stack.set(
-                        DataComponentRegistry.PARTICLE_DATA, tag.getCompound(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY)
+                        DataComponentRegistry.PARTICLE_DATA,
+                        CustomData.of(tag.getCompound(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY))
                     );
                     tag.remove(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY);
                 }

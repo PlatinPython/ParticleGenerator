@@ -6,6 +6,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -127,16 +128,16 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
-        CompoundTag particleData = componentInput.get(DataComponentRegistry.PARTICLE_DATA);
+        CustomData particleData = componentInput.get(DataComponentRegistry.PARTICLE_DATA);
         if (particleData != null) {
-            this.particleData.loadFromTag(particleData);
+            this.particleData.loadFromTag(particleData.copyTag());
         }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(DataComponentRegistry.PARTICLE_DATA, this.particleData.saveToTag());
+        builder.set(DataComponentRegistry.PARTICLE_DATA, CustomData.of(this.particleData.saveToTag()));
     }
 
     @Override
