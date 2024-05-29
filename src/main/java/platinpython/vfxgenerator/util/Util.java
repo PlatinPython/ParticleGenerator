@@ -62,6 +62,18 @@ public class Util {
         return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
+    public static <T extends Comparable<T>> T clamp(T value, T min, T max) {
+        return min(max(value, min), max);
+    }
+
+    public static <T extends Comparable<T>> T min(T a, T b) {
+        return a.compareTo(b) < 0 ? a : b;
+    }
+
+    public static <T extends Comparable<T>> T max(T a, T b) {
+        return a.compareTo(b) > 0 ? a : b;
+    }
+
     @FunctionalInterface
     public interface BooleanSupplier {
         boolean get();

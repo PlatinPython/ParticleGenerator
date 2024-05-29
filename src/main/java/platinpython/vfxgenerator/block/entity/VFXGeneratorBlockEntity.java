@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.component.CustomData;
@@ -20,6 +21,7 @@ import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
 import platinpython.vfxgenerator.util.registries.DataComponentRegistry;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class VFXGeneratorBlockEntity extends BlockEntity {
@@ -35,14 +37,15 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         return particleData;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (!(blockEntity instanceof VFXGeneratorBlockEntity generatorBlockEntity)) {
             return;
         }
         if ((state.getValue(VFXGeneratorBlock.INVERTED) && !state.getValue(VFXGeneratorBlock.POWERED))
             || (!state.getValue(VFXGeneratorBlock.INVERTED) && state.getValue(VFXGeneratorBlock.POWERED))) {
-            if (generatorBlockEntity.particleData.isEnabled()) {
-                if (level.getGameTime() % generatorBlockEntity.particleData.getDelay() == 0) {
+            if (generatorBlockEntity.particleData.enabled.get()) {
+                if (level.getGameTime() % generatorBlockEntity.particleData.delay.get() == 0) {
                     ThreadLocalRandom random = ThreadLocalRandom.current();
 
                     if (generatorBlockEntity.particleData.getSelected().isEmpty()) {
@@ -55,61 +58,61 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
                     }
 
                     int color;
-                    if (generatorBlockEntity.particleData.useHSB()) {
+                    if (generatorBlockEntity.particleData.useHSB.get()) {
                         color = Color.getRandomHSBColor(random, new float[]{
-                            generatorBlockEntity.particleData.getHueBot(),
-                            generatorBlockEntity.particleData.getSaturationBot(),
-                            generatorBlockEntity.particleData.getBrightnessBot()
+                            generatorBlockEntity.particleData.hue.get().start(),
+                            generatorBlockEntity.particleData.saturation.get().start(),
+                            generatorBlockEntity.particleData.brightness.get().start()
                         }, new float[]{
-                            generatorBlockEntity.particleData.getHueTop(),
-                            generatorBlockEntity.particleData.getSaturationTop(),
-                            generatorBlockEntity.particleData.getBrightnessTop()
+                            generatorBlockEntity.particleData.hue.get().end(),
+                            generatorBlockEntity.particleData.saturation.get().end(),
+                            generatorBlockEntity.particleData.brightness.get().end()
                         });
                     } else {
                         color = Color.getRandomRGBColor(
-                            random, generatorBlockEntity.particleData.getRGBColorBot(),
-                            generatorBlockEntity.particleData.getRGBColorTop()
+                            random, generatorBlockEntity.particleData.rgbColor.get().start(),
+                            generatorBlockEntity.particleData.rgbColor.get().end()
                         );
                     }
 
                     int lifetime = Math.round(
-                        (generatorBlockEntity.particleData.getLifetimeBot()
-                            + (random.nextFloat() * (generatorBlockEntity.particleData.getLifetimeTop()
-                                - generatorBlockEntity.particleData.getLifetimeBot())))
+                        (generatorBlockEntity.particleData.lifetime.get().start()
+                            + (random.nextFloat() * (generatorBlockEntity.particleData.lifetime.get().end()
+                                - generatorBlockEntity.particleData.lifetime.get().start())))
                     );
 
-                    float size = generatorBlockEntity.particleData.getSizeBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getSizeTop()
-                            - generatorBlockEntity.particleData.getSizeBot()));
+                    float size = generatorBlockEntity.particleData.size.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.size.get().end()
+                            - generatorBlockEntity.particleData.size.get().start()));
 
                     Vec3 center = Vec3.atCenterOf(pos);
-                    double spawnX = center.x + generatorBlockEntity.particleData.getSpawnXBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getSpawnXTop()
-                            - generatorBlockEntity.particleData.getSpawnXBot()));
-                    double spawnY = center.y + generatorBlockEntity.particleData.getSpawnYBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getSpawnYTop()
-                            - generatorBlockEntity.particleData.getSpawnYBot()));
-                    double spawnZ = center.z + generatorBlockEntity.particleData.getSpawnZBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getSpawnZTop()
-                            - generatorBlockEntity.particleData.getSpawnZBot()));
+                    double spawnX = center.x + generatorBlockEntity.particleData.spawnX.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnX.get().end()
+                            - generatorBlockEntity.particleData.spawnX.get().start()));
+                    double spawnY = center.y + generatorBlockEntity.particleData.spawnY.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnY.get().end()
+                            - generatorBlockEntity.particleData.spawnY.get().start()));
+                    double spawnZ = center.z + generatorBlockEntity.particleData.spawnZ.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnZ.get().end()
+                            - generatorBlockEntity.particleData.spawnZ.get().start()));
                     center = new Vec3(spawnX, spawnY, spawnZ);
 
-                    double motionX = generatorBlockEntity.particleData.getMotionXBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getMotionXTop()
-                            - generatorBlockEntity.particleData.getMotionXBot()));
-                    double motionY = generatorBlockEntity.particleData.getMotionYBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getMotionYTop()
-                            - generatorBlockEntity.particleData.getMotionYBot()));
-                    double motionZ = generatorBlockEntity.particleData.getMotionZBot()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.getMotionZTop()
-                            - generatorBlockEntity.particleData.getMotionZBot()));
+                    double motionX = generatorBlockEntity.particleData.motionX.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionX.get().end()
+                            - generatorBlockEntity.particleData.motionX.get().start()));
+                    double motionY = generatorBlockEntity.particleData.motionY.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionY.get().end()
+                            - generatorBlockEntity.particleData.motionY.get().start()));
+                    double motionZ = generatorBlockEntity.particleData.motionZ.get().start()
+                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionZ.get().end()
+                            - generatorBlockEntity.particleData.motionZ.get().start()));
                     Vec3 motion = new Vec3(motionX, motionY, motionZ);
 
                     ClientUtils.addParticle(
                         level, particleType, color, lifetime, size, center, motion,
-                        generatorBlockEntity.particleData.getGravity(),
-                        generatorBlockEntity.particleData.hasCollision(),
-                        generatorBlockEntity.particleData.isFullBright()
+                        generatorBlockEntity.particleData.gravity.get(),
+                        generatorBlockEntity.particleData.collision.get(),
+                        generatorBlockEntity.particleData.fullBright.get()
                     );
                 }
             }
@@ -122,7 +125,7 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     }
 
     public void loadFromTag(CompoundTag tag) {
-        this.particleData.loadFromTag(tag.getCompound(PARTICLE_DATA_KEY));
+        this.particleData.loadFromTag(Objects.requireNonNullElse(tag.get(PARTICLE_DATA_KEY), EndTag.INSTANCE));
     }
 
     @Override
@@ -130,14 +133,14 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         super.applyImplicitComponents(componentInput);
         CustomData particleData = componentInput.get(DataComponentRegistry.PARTICLE_DATA);
         if (particleData != null) {
-            this.particleData.loadFromTag(particleData.copyTag());
+            this.loadFromTag(particleData.copyTag());
         }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(DataComponentRegistry.PARTICLE_DATA, CustomData.of(this.particleData.saveToTag()));
+        builder.set(DataComponentRegistry.PARTICLE_DATA, CustomData.of(this.saveToTag(new CompoundTag())));
     }
 
     @Override

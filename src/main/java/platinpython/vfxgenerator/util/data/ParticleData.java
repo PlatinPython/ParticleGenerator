@@ -1,526 +1,189 @@
 package platinpython.vfxgenerator.util.data;
 
-import com.google.common.collect.ImmutableList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import com.mojang.serialization.Codec;
+import dev.lukebemish.codecextras.Asymmetry;
+import dev.lukebemish.codecextras.mutable.DataElementType;
+import dev.lukebemish.codecextras.stream.mutable.StreamDataElementType;
+import net.minecraft.nbt.EndTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.Constants;
 import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
-import java.util.Collections;
-import java.util.Objects;
+import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ParticleData {
-    private final BlockEntity owner;
 
-    private boolean enabled = true;
-    private TreeSet<ResourceLocation> allSelected =
-        Util.getThreeRandomElements(DataManager.selectableParticles().keySet(), ResourceLocation::compareNamespaced);
-    private TreeSet<ResourceLocation> activeSelected = new TreeSet<>(allSelected);
-    private ImmutableList<ResourceLocation> activeSelectedListView = ImmutableList.copyOf(activeSelected);
-    private boolean useHSB = false;
-    private int RGBColorBot = 0xFF000000;
-    private int RGBColorTop = 0xFFFFFFFF;
-    private float hueBot = 0F;
-    private float saturationBot = 0F;
-    private float brightnessBot = 0F;
-    private float hueTop = 1F;
-    private float saturationTop = 1F;
-    private float brightnessTop = 1F;
-    private int lifetimeBot = 20;
-    private int lifetimeTop = 80;
-    private float sizeBot = 1F;
-    private float sizeTop = 3F;
-    private float spawnXBot = -1F;
-    private float spawnXTop = 1F;
-    private float spawnYBot = 0F;
-    private float spawnYTop = 0F;
-    private float spawnZBot = -1F;
-    private float spawnZTop = 1F;
-    private float motionXBot = -0.1F;
-    private float motionXTop = 0.1F;
-    private float motionYBot = 0.1F;
-    private float motionYTop = 0.1F;
-    private float motionZBot = -0.1F;
-    private float motionZTop = 0.1F;
-    private int delay = 5;
-    private float gravity = 0F;
-    private boolean collision = false;
-    private boolean fullBright = false;
-
-    public ParticleData(BlockEntity owner) {
-        this.owner = owner;
-    }
-
-    public CompoundTag saveToTag() {
-        CompoundTag particleTag = new CompoundTag();
-        particleTag.putBoolean(Constants.ParticleConstants.Keys.ENABLED, isEnabled());
-        ListTag listNBT = new ListTag();
-        allSelected.forEach((location) -> listNBT.add(StringTag.valueOf(location.toString())));
-        particleTag.put(Constants.ParticleConstants.Keys.SELECTED, listNBT);
-        particleTag.putBoolean(Constants.ParticleConstants.Keys.USE_HSB, useHSB());
-        particleTag.putInt(Constants.ParticleConstants.Keys.RGB_COLOR_BOT, getRGBColorBot());
-        particleTag.putInt(Constants.ParticleConstants.Keys.RGB_COLOR_TOP, getRGBColorTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.HUE_BOT, getHueBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SATURATION_BOT, getSaturationBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.BRIGHTNESS_BOT, getBrightnessBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.HUE_TOP, getHueTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SATURATION_TOP, getSaturationTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.BRIGHTNESS_TOP, getBrightnessTop());
-        particleTag.putInt(Constants.ParticleConstants.Keys.LIFETIME_BOT, getLifetimeBot());
-        particleTag.putInt(Constants.ParticleConstants.Keys.LIFETIME_TOP, getLifetimeTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SIZE_BOT, getSizeBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SIZE_TOP, getSizeTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_X_BOT, getSpawnXBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_X_TOP, getSpawnXTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_Y_BOT, getSpawnYBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_Y_TOP, getSpawnYTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_Z_BOT, getSpawnZBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.SPAWN_Z_TOP, getSpawnZTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_X_BOT, getMotionXBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_X_TOP, getMotionXTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_Y_BOT, getMotionYBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_Y_TOP, getMotionYTop());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_Z_BOT, getMotionZBot());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.MOTION_Z_TOP, getMotionZTop());
-        particleTag.putInt(Constants.ParticleConstants.Keys.DELAY, getDelay());
-        particleTag.putFloat(Constants.ParticleConstants.Keys.GRAVITY, getGravity());
-        particleTag.putBoolean(Constants.ParticleConstants.Keys.COLLISION, hasCollision());
-        particleTag.putBoolean(Constants.ParticleConstants.Keys.FULLBRIGHT, isFullBright());
-        return particleTag;
-    }
-
-    public void loadFromTag(CompoundTag particleTag) {
-        enabled = particleTag.getBoolean(Constants.ParticleConstants.Keys.ENABLED);
-        if (particleTag.getTagType(Constants.ParticleConstants.Keys.SELECTED) == Tag.TAG_LIST) {
-            allSelected = Util.createTreeSetFromCollectionWithComparator(
-                particleTag.getList(Constants.ParticleConstants.Keys.SELECTED, Tag.TAG_STRING)
-                    .stream()
-                    .map(nbt -> ResourceLocation.tryParse(nbt.getAsString().replace(":particle/", ":")))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()),
-                ResourceLocation::compareNamespaced
-            );
-        } else {
-            allSelected = Util.createTreeSetFromCollectionWithComparator(
-                Collections.singletonList(
-                    Util.createNamespacedResourceLocation(
-                        particleTag.getString(Constants.ParticleConstants.Keys.SELECTED)
-                    )
-                ), ResourceLocation::compareNamespaced
-            );
-        }
-        activeSelected = allSelected.stream()
-            .filter(DataManager.selectableParticles()::containsKey)
-            .collect(Collectors.toCollection(() -> new TreeSet<>(ResourceLocation::compareNamespaced)));
-        activeSelectedListView = ImmutableList.copyOf(activeSelected);
-        useHSB = particleTag.getBoolean(Constants.ParticleConstants.Keys.USE_HSB);
-        RGBColorBot =
-            Mth.clamp(particleTag.getInt(Constants.ParticleConstants.Keys.RGB_COLOR_BOT), 0xFF000000, 0xFFFFFFFF);
-        RGBColorTop =
-            Mth.clamp(particleTag.getInt(Constants.ParticleConstants.Keys.RGB_COLOR_TOP), 0xFF000000, 0xFFFFFFFF);
-        hueBot = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.HUE_BOT), 0F, 1F);
-        saturationBot = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.SATURATION_BOT), 0F, 1F);
-        brightnessBot = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.BRIGHTNESS_BOT), 0F, 1F);
-        hueTop = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.HUE_TOP), 0F, 1F);
-        saturationTop = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.SATURATION_TOP), 0F, 1F);
-        brightnessTop = Mth.clamp(particleTag.getFloat(Constants.ParticleConstants.Keys.BRIGHTNESS_TOP), 0F, 1F);
-        lifetimeBot = Mth.clamp(
-            particleTag.getInt(Constants.ParticleConstants.Keys.LIFETIME_BOT),
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> ENABLED = StreamDataElementType
+        .create("enabled", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.enabled);
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ALL_SELECTED =
+        StreamDataElementType.create(
+            "all_selected", ResourceLocation.CODEC.listOf().xmap(TreeSet::new, List::copyOf),
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list())
+                .map(TreeSet::new, List::copyOf)
+                .mapStream(FriendlyByteBuf::asByteBuf),
+            data -> data.allSelected
+        );
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> USE_HSB = StreamDataElementType
+        .create("use_hsb", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.useHSB);
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> RGB_COLOR =
+        new BoundedRangeStreamDataElementType<>(
+            "rgb_color", Range.getCodec(Codec.INT), Range.getStreamCodec(ByteBufCodecs.INT), data -> data.rgbColor,
+            0xFF000000, 0xFFFFFFFF
+        );
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> HUE =
+        new BoundedRangeStreamDataElementType<>(
+            "hue", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.hue, 0F, 1F
+        );
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SATURATION =
+        new BoundedRangeStreamDataElementType<>(
+            "saturation", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT),
+            data -> data.saturation, 0F, 1F
+        );
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> BRIGHTNESS =
+        new BoundedRangeStreamDataElementType<>(
+            "brightness", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT),
+            data -> data.brightness, 0F, 1F
+        );
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> LIFETIME =
+        new BoundedRangeStreamDataElementType<>(
+            "lifetime", Range.getCodec(Codec.INT), Range.getStreamCodec(ByteBufCodecs.INT), data -> data.lifetime,
             Constants.ParticleConstants.Values.MIN_LIFETIME, Constants.ParticleConstants.Values.MAX_LIFETIME
         );
-        lifetimeTop = Mth.clamp(
-            particleTag.getInt(Constants.ParticleConstants.Keys.LIFETIME_TOP),
-            Constants.ParticleConstants.Values.MIN_LIFETIME, Constants.ParticleConstants.Values.MAX_LIFETIME
-        );
-        sizeBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SIZE_BOT),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SIZE =
+        new BoundedRangeStreamDataElementType<>(
+            "size", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.size,
             Constants.ParticleConstants.Values.MIN_SIZE, Constants.ParticleConstants.Values.MAX_SIZE
         );
-        sizeTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SIZE_TOP),
-            Constants.ParticleConstants.Values.MIN_SIZE, Constants.ParticleConstants.Values.MAX_SIZE
-        );
-        spawnXBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_X_BOT),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_X =
+        new BoundedRangeStreamDataElementType<>(
+            "spawn_x", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnX,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
-        spawnXTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_X_TOP),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_Y =
+        new BoundedRangeStreamDataElementType<>(
+            "spawn_y", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnY,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
-        spawnYBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_Y_BOT),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_Z =
+        new BoundedRangeStreamDataElementType<>(
+            "spawn_z", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnZ,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
-        spawnYTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_Y_TOP),
-            Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
-        );
-        spawnZBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_Z_BOT),
-            Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
-        );
-        spawnZTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.SPAWN_Z_TOP),
-            Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
-        );
-        motionXBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_X_BOT),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_X =
+        new BoundedRangeStreamDataElementType<>(
+            "motion_x", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionX,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
-        motionXTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_X_TOP),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_Y =
+        new BoundedRangeStreamDataElementType<>(
+            "motion_y", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionY,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
-        motionYBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_Y_BOT),
+    private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_Z =
+        new BoundedRangeStreamDataElementType<>(
+            "motion_z", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionZ,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
-        motionYTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_Y_TOP),
-            Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
+    private static final BoundedStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> DELAY =
+        new BoundedStreamDataElementType<>(
+            "delay", Codec.INT, ByteBufCodecs.INT.mapStream(FriendlyByteBuf::asByteBuf), data -> data.delay,
+            Constants.ParticleConstants.Values.MIN_DELAY, Constants.ParticleConstants.Values.MAX_DELAY
         );
-        motionZBot = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_Z_BOT),
-            Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
-        );
-        motionZTop = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.MOTION_Z_TOP),
-            Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
-        );
-        delay = Mth.clamp(
-            particleTag.getInt(Constants.ParticleConstants.Keys.DELAY), Constants.ParticleConstants.Values.MIN_DELAY,
-            Constants.ParticleConstants.Values.MAX_DELAY
-        );
-        gravity = Mth.clamp(
-            particleTag.getFloat(Constants.ParticleConstants.Keys.GRAVITY),
+    private static final BoundedStreamDataElementType<FriendlyByteBuf, ParticleData, Float> GRAVITY =
+        new BoundedStreamDataElementType<>(
+            "gravity", Codec.FLOAT, ByteBufCodecs.FLOAT.mapStream(FriendlyByteBuf::asByteBuf), data -> data.gravity,
             Constants.ParticleConstants.Values.MIN_GRAVITY, Constants.ParticleConstants.Values.MAX_GRAVITY
         );
-        collision = particleTag.getBoolean(Constants.ParticleConstants.Keys.COLLISION);
-        fullBright = particleTag.getBoolean(Constants.ParticleConstants.Keys.FULLBRIGHT);
-
-        ensureDataOrder();
-    }
-
-    private void ensureDataOrder() {
-        RGBColorBot = Mth.clamp(getRGBColorBot(), 0xFF000000, getRGBColorTop());
-        RGBColorTop = Mth.clamp(getRGBColorTop(), getRGBColorBot(), 0xFFFFFFFF);
-        hueBot = Mth.clamp(getHueBot(), 0F, getHueTop());
-        saturationBot = Mth.clamp(getSaturationBot(), 0F, getSaturationTop());
-        brightnessBot = Mth.clamp(getBrightnessBot(), 0F, getBrightnessTop());
-        hueTop = Mth.clamp(getHueTop(), getHueBot(), 1F);
-        saturationTop = Mth.clamp(getSaturationTop(), getSaturationBot(), 1F);
-        brightnessTop = Mth.clamp(getBrightnessTop(), getBrightnessBot(), 1F);
-        lifetimeBot = Mth.clamp(getLifetimeBot(), Constants.ParticleConstants.Values.MIN_LIFETIME, getLifetimeTop());
-        lifetimeTop = Mth.clamp(getLifetimeTop(), getLifetimeBot(), Constants.ParticleConstants.Values.MAX_LIFETIME);
-        sizeBot = Mth.clamp(getSizeBot(), Constants.ParticleConstants.Values.MIN_SIZE, getSizeTop());
-        sizeTop = Mth.clamp(getSizeTop(), getSizeBot(), Constants.ParticleConstants.Values.MAX_SIZE);
-        spawnXBot = Mth.clamp(getSpawnXBot(), Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnXTop());
-        spawnXTop = Mth.clamp(getSpawnXTop(), getSpawnXBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        spawnYBot = Mth.clamp(getSpawnYBot(), Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnYTop());
-        spawnYTop = Mth.clamp(getSpawnYTop(), getSpawnYBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        spawnZBot = Mth.clamp(getSpawnZBot(), Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnZTop());
-        spawnZTop = Mth.clamp(getSpawnZTop(), getSpawnZBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        motionXBot = Mth.clamp(getMotionXBot(), Constants.ParticleConstants.Values.MIN_MOTION, getMotionXTop());
-        motionXTop = Mth.clamp(getMotionXTop(), getMotionXBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-        motionYBot = Mth.clamp(getMotionYBot(), Constants.ParticleConstants.Values.MIN_MOTION, getMotionYTop());
-        motionYTop = Mth.clamp(getMotionYTop(), getMotionYBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-        motionZBot = Mth.clamp(getMotionZBot(), Constants.ParticleConstants.Values.MIN_MOTION, getMotionZTop());
-        motionZTop = Mth.clamp(getMotionZTop(), getMotionZBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-        owner.setChanged();
-    }
-
-    public TreeSet<ResourceLocation> getSelected() {
-        return activeSelected;
-    }
-
-    public void setSelected(TreeSet<ResourceLocation> selected) {
-        this.allSelected.removeAll(this.activeSelected);
-        this.activeSelected = Util.createTreeSetFromCollectionWithComparator(
-            selected.stream().filter(DataManager.selectableParticles()::containsKey).collect(Collectors.toList()),
-            ResourceLocation::compareNamespaced
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> COLLISION =
+        StreamDataElementType.create(
+            "collision", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.collision
         );
-        this.activeSelectedListView = ImmutableList.copyOf(this.activeSelected);
-        this.allSelected.addAll(this.activeSelected);
-        owner.setChanged();
-    }
-
-    public ResourceLocation getRandomSelected() {
-        return activeSelectedListView.get(ThreadLocalRandom.current().nextInt(activeSelectedListView.size()));
-    }
-
-    public boolean useHSB() {
-        return useHSB;
-    }
-
-    public void setUseHSB(boolean useHSB) {
-        this.useHSB = useHSB;
-        owner.setChanged();
-    }
-
-    public int getRGBColorBot() {
-        return RGBColorBot;
-    }
-
-    public void setRGBColorBot(int RGBColorBot) {
-        this.RGBColorBot = Mth.clamp(RGBColorBot, 0xFF000000, getRGBColorTop());
-        owner.setChanged();
-    }
-
-    public int getRGBColorTop() {
-        return RGBColorTop;
-    }
-
-    public void setRGBColorTop(int RGBColorTop) {
-        this.RGBColorTop = Mth.clamp(RGBColorTop, getRGBColorBot(), 0xFFFFFFFF);
-        owner.setChanged();
-    }
-
-    public float getHueBot() {
-        return hueBot;
-    }
-
-    public void setHueBot(float hueBot) {
-        this.hueBot = Mth.clamp(hueBot, 0F, getHueTop());
-    }
-
-    public float getSaturationBot() {
-        return saturationBot;
-    }
-
-    public void setSaturationBot(float saturationBot) {
-        this.saturationBot = Mth.clamp(saturationBot, 0F, getSaturationTop());
-    }
-
-    public float getBrightnessBot() {
-        return brightnessBot;
-    }
-
-    public void setBrightnessBot(float brightnessBot) {
-        this.brightnessBot = Mth.clamp(brightnessBot, 0F, getBrightnessTop());
-    }
-
-    public float getHueTop() {
-        return hueTop;
-    }
-
-    public void setHueTop(float hueTop) {
-        this.hueTop = Mth.clamp(hueTop, getHueBot(), 1F);
-    }
-
-    public float getSaturationTop() {
-        return saturationTop;
-    }
-
-    public void setSaturationTop(float saturationTop) {
-        this.saturationTop = Mth.clamp(saturationTop, getSaturationBot(), 1F);
-    }
-
-    public float getBrightnessTop() {
-        return brightnessTop;
-    }
-
-    public void setBrightnessTop(float brightnessTop) {
-        this.brightnessTop = Mth.clamp(brightnessTop, getBrightnessBot(), 1F);
-    }
-
-    public int getLifetimeBot() {
-        return lifetimeBot;
-    }
-
-    public void setLifetimeBot(int lifetimeBot) {
-        this.lifetimeBot = Mth.clamp(lifetimeBot, Constants.ParticleConstants.Values.MIN_LIFETIME, getLifetimeTop());
-        owner.setChanged();
-    }
-
-    public int getLifetimeTop() {
-        return lifetimeTop;
-    }
-
-    public void setLifetimeTop(int lifetimeTop) {
-        this.lifetimeTop = Mth.clamp(lifetimeTop, getLifetimeBot(), Constants.ParticleConstants.Values.MAX_LIFETIME);
-        owner.setChanged();
-    }
-
-    public float getSizeBot() {
-        return sizeBot;
-    }
-
-    public void setSizeBot(float sizeBot) {
-        this.sizeBot = Mth.clamp(sizeBot, Constants.ParticleConstants.Values.MIN_SIZE, getSizeTop());
-        owner.setChanged();
-    }
-
-    public float getSizeTop() {
-        return sizeTop;
-    }
-
-    public void setSizeTop(float sizeTop) {
-        this.sizeTop = Mth.clamp(sizeTop, getSizeBot(), Constants.ParticleConstants.Values.MAX_SIZE);
-        owner.setChanged();
-    }
-
-    public float getSpawnXBot() {
-        return spawnXBot;
-    }
-
-    public void setSpawnXBot(float spawnXBot) {
-        this.spawnXBot = Mth.clamp(spawnXBot, Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnXTop());
-        owner.setChanged();
-    }
-
-    public float getSpawnXTop() {
-        return spawnXTop;
-    }
-
-    public void setSpawnXTop(float spawnXTop) {
-        this.spawnXTop = Mth.clamp(spawnXTop, getSpawnXBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        owner.setChanged();
-    }
-
-    public float getSpawnYBot() {
-        return spawnYBot;
-    }
-
-    public void setSpawnYBot(float spawnYBot) {
-        this.spawnYBot = Mth.clamp(spawnYBot, Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnYTop());
-        owner.setChanged();
-    }
-
-    public float getSpawnYTop() {
-        return spawnYTop;
-    }
-
-    public void setSpawnYTop(float spawnYTop) {
-        this.spawnYTop = Mth.clamp(spawnYTop, getSpawnYBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        owner.setChanged();
-    }
-
-    public float getSpawnZBot() {
-        return spawnZBot;
-    }
-
-    public void setSpawnZBot(float spawnZBot) {
-        this.spawnZBot = Mth.clamp(spawnZBot, Constants.ParticleConstants.Values.MIN_SPAWN, getSpawnZTop());
-        owner.setChanged();
-    }
-
-    public float getSpawnZTop() {
-        return spawnZTop;
-    }
-
-    public void setSpawnZTop(float spawnZTop) {
-        this.spawnZTop = Mth.clamp(spawnZTop, getSpawnZBot(), Constants.ParticleConstants.Values.MAX_SPAWN);
-        owner.setChanged();
-    }
-
-    public float getMotionXBot() {
-        return motionXBot;
-    }
-
-    public void setMotionXBot(float motionXBot) {
-        this.motionXBot = Mth.clamp(motionXBot, Constants.ParticleConstants.Values.MIN_MOTION, getMotionXTop());
-        owner.setChanged();
-    }
-
-    public float getMotionXTop() {
-        return motionXTop;
-    }
-
-    public void setMotionXTop(float motionXTop) {
-        this.motionXTop = Mth.clamp(motionXTop, getMotionXBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-        owner.setChanged();
-    }
-
-    public float getMotionYBot() {
-        return motionYBot;
-    }
-
-    public void setMotionYBot(float motionYBot) {
-        this.motionYBot = Mth.clamp(motionYBot, Constants.ParticleConstants.Values.MIN_MOTION, getMotionYTop());
-        owner.setChanged();
-    }
-
-    public float getMotionYTop() {
-        return motionYTop;
-    }
-
-    public void setMotionYTop(float motionYTop) {
-        this.motionYTop = Mth.clamp(motionYTop, getMotionYBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-        owner.setChanged();
-    }
-
-    public float getMotionZBot() {
-        return motionZBot;
-    }
-
-    public void setMotionZBot(float motionZBot) {
-        this.motionZBot = Mth.clamp(motionZBot, Constants.ParticleConstants.Values.MIN_MOTION, getMotionZTop());
-        owner.setChanged();
-    }
-
-    public float getMotionZTop() {
-        return motionZTop;
-    }
-
-    public void setMotionZTop(float motionZTop) {
-        this.motionZTop = Mth.clamp(motionZTop, getMotionZBot(), Constants.ParticleConstants.Values.MAX_MOTION);
-        owner.setChanged();
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public void setDelay(int delay) {
-        this.delay = Mth
-            .clamp(delay, Constants.ParticleConstants.Values.MIN_DELAY, Constants.ParticleConstants.Values.MAX_DELAY);
-        owner.setChanged();
-    }
-
-    public float getGravity() {
-        return gravity;
-    }
-
-    public void setGravity(float gravity) {
-        this.gravity = Mth.clamp(
-            gravity, Constants.ParticleConstants.Values.MIN_GRAVITY, Constants.ParticleConstants.Values.MAX_GRAVITY
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> FULL_BRIGHT =
+        StreamDataElementType.create(
+            "full_bright", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.fullBright
         );
-        owner.setChanged();
+
+    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> FULL_CODEC = DataElementType.codec(
+        true, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X, SPAWN_Y,
+        SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+    );
+    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> DIFF_CODEC = DataElementType.codec(
+        false, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X, SPAWN_Y,
+        SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+    );
+    public static final StreamCodec<FriendlyByteBuf, Asymmetry<Consumer<ParticleData>, ParticleData>> DIFF_STREAM_CODEC =
+        StreamDataElementType.streamCodec(
+            false, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X,
+            SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+        );
+
+    public final OwnedDataElement<Boolean> enabled;
+    public final OwnedDataElement<TreeSet<ResourceLocation>> allSelected;
+    public final OwnedDataElement<Boolean> useHSB;
+    public final OwnedDataElement.BoundedRange<Integer> rgbColor;
+    public final OwnedDataElement.BoundedRange<Float> hue;
+    public final OwnedDataElement.BoundedRange<Float> saturation;
+    public final OwnedDataElement.BoundedRange<Float> brightness;
+    public final OwnedDataElement.BoundedRange<Integer> lifetime;
+    public final OwnedDataElement.BoundedRange<Float> size;
+    public final OwnedDataElement.BoundedRange<Float> spawnX;
+    public final OwnedDataElement.BoundedRange<Float> spawnY;
+    public final OwnedDataElement.BoundedRange<Float> spawnZ;
+    public final OwnedDataElement.BoundedRange<Float> motionX;
+    public final OwnedDataElement.BoundedRange<Float> motionY;
+    public final OwnedDataElement.BoundedRange<Float> motionZ;
+    public final OwnedDataElement.Bounded<Integer> delay;
+    public final OwnedDataElement.Bounded<Float> gravity;
+    public final OwnedDataElement<Boolean> collision;
+    public final OwnedDataElement<Boolean> fullBright;
+
+    public ParticleData(BlockEntity owner) {
+        this.enabled = new OwnedDataElement<>(true, owner);
+        this.allSelected = new OwnedDataElement<>(
+            Util.getThreeRandomElements(
+                DataManager.selectableParticles().keySet(), ResourceLocation::compareNamespaced
+            ), owner
+        );
+        this.useHSB = new OwnedDataElement<>(false, owner);
+        this.rgbColor = new OwnedDataElement.BoundedRange<>(new Range<>(0xFF000000, 0xFFFFFFFF), owner, RGB_COLOR);
+        this.hue = new OwnedDataElement.BoundedRange<>(new Range<>(0F, 1F), owner, HUE);
+        this.saturation = new OwnedDataElement.BoundedRange<>(new Range<>(0F, 1F), owner, SATURATION);
+        this.brightness = new OwnedDataElement.BoundedRange<>(new Range<>(0F, 1F), owner, BRIGHTNESS);
+        this.lifetime = new OwnedDataElement.BoundedRange<>(new Range<>(20, 80), owner, LIFETIME);
+        this.size = new OwnedDataElement.BoundedRange<>(new Range<>(1F, 3F), owner, SIZE);
+        this.spawnX = new OwnedDataElement.BoundedRange<>(new Range<>(-1F, 1F), owner, SPAWN_X);
+        this.spawnY = new OwnedDataElement.BoundedRange<>(new Range<>(0F, 0F), owner, SPAWN_Y);
+        this.spawnZ = new OwnedDataElement.BoundedRange<>(new Range<>(-1F, 1F), owner, SPAWN_Z);
+        this.motionX = new OwnedDataElement.BoundedRange<>(new Range<>(-0.1F, 0.1F), owner, MOTION_X);
+        this.motionY = new OwnedDataElement.BoundedRange<>(new Range<>(0.1F, 0.1F), owner, MOTION_Y);
+        this.motionZ = new OwnedDataElement.BoundedRange<>(new Range<>(-0.1F, 0.1F), owner, MOTION_Z);
+        this.delay = new OwnedDataElement.Bounded<>(5, owner, DELAY);
+        this.gravity = new OwnedDataElement.Bounded<>(0F, owner, GRAVITY);
+        this.collision = new OwnedDataElement<>(false, owner);
+        this.fullBright = new OwnedDataElement<>(false, owner);
     }
 
-    public boolean hasCollision() {
-        return collision;
+    public Tag saveToTag() {
+        return FULL_CODEC.encodeStart(NbtOps.INSTANCE, Asymmetry.ofEncoding(this))
+            .resultOrPartial(VFXGenerator.LOGGER::error)
+            .orElse(EndTag.INSTANCE);
     }
 
-    public void setCollision(boolean collision) {
-        this.collision = collision;
-        owner.setChanged();
-    }
-
-    public boolean isFullBright() {
-        return fullBright;
-    }
-
-    public void setFullBright(boolean fullBright) {
-        this.fullBright = fullBright;
-        owner.setChanged();
+    public void loadFromTag(Tag tag) {
+        FULL_CODEC.parse(NbtOps.INSTANCE, tag)
+            .flatMap(Asymmetry::decoding)
+            .resultOrPartial(VFXGenerator.LOGGER::error)
+            .ifPresent(consumer -> consumer.accept(this));
     }
 }

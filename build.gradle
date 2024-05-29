@@ -57,6 +57,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        url = 'https://maven.lukebemish.dev/releases/'
+    }
 }
 
 dependencies {
@@ -67,6 +70,12 @@ dependencies {
     implementation 'org.l33tlabs.twl:pngdecoder:1.0'
     jarJar('org.l33tlabs.twl:pngdecoder:[1.0,)') {
         transitive(false)
+    }
+
+    implementation('dev.lukebemish:codecextras:2.2.1') {
+        capabilities {
+            requireCapability('dev.lukebemish:codecextras-stream')
+        }
     }
 
 //    runtimeOnly "curse.maven:atlasviewer-633577:4762356"
