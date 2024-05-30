@@ -22,12 +22,14 @@ import org.jspecify.annotations.Nullable;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.util.data.ParticleData;
+import platinpython.vfxgenerator.util.data.Range;
 
 @EventBusSubscriber(modid = VFXGenerator.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class BoxRendering {
     @Nullable
     public static BlockPos currentRenderPos;
 
+    @SuppressWarnings("UnstableApiUsage")
     @SubscribeEvent
     public static void onRenderWorldLast(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
@@ -42,6 +44,9 @@ public class BoxRendering {
             return;
         }
         ParticleData particleData = vfxGeneratorBlockEntity.getParticleData();
+        Range<Float> spawnX = particleData.spawnX.get();
+        Range<Float> spawnY = particleData.spawnY.get();
+        Range<Float> spawnZ = particleData.spawnZ.get();
 
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -56,17 +61,15 @@ public class BoxRendering {
 
         VertexConsumer builder = buffer.getBuffer(BoxRenderType.TRANSLUCENT_NO_CULL);
         renderBoxSides(
-            builder, matrix, pos.x() + particleData.getSpawnXBot(), pos.y() + particleData.getSpawnYBot(),
-            pos.z() + particleData.getSpawnZBot(), pos.x() + particleData.getSpawnXTop(),
-            pos.y() + particleData.getSpawnYTop(), pos.z() + particleData.getSpawnZTop()
+            builder, matrix, pos.x() + spawnX.start(), pos.y() + spawnY.start(), pos.z() + spawnZ.start(),
+            pos.x() + spawnX.end(), pos.y() + spawnY.end(), pos.z() + spawnZ.end()
         );
         buffer.endBatch(BoxRenderType.TRANSLUCENT_NO_CULL);
 
         builder = buffer.getBuffer(BoxRenderType.LINES);
         renderBoxEdges(
-            builder, matrix, pos.x() + particleData.getSpawnXBot(), pos.y() + particleData.getSpawnYBot(),
-            pos.z() + particleData.getSpawnZBot(), pos.x() + particleData.getSpawnXTop(),
-            pos.y() + particleData.getSpawnYTop(), pos.z() + particleData.getSpawnZTop()
+            builder, matrix, pos.x() + spawnX.start(), pos.y() + spawnY.start(), pos.z() + spawnZ.start(),
+            pos.x() + spawnX.end(), pos.y() + spawnY.end(), pos.z() + spawnZ.end()
         );
         buffer.endBatch(BoxRenderType.LINES);
 
