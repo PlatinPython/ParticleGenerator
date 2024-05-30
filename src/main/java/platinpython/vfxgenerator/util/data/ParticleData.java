@@ -5,6 +5,8 @@ import com.mojang.serialization.DataResult;
 import dev.lukebemish.codecextras.Asymmetry;
 import dev.lukebemish.codecextras.mutable.DataElementType;
 import dev.lukebemish.codecextras.stream.mutable.StreamDataElementType;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -32,10 +34,10 @@ public class ParticleData {
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ALL_SELECTED =
         StreamDataElementType.create(
             "all_selected", ResourceLocation.CODEC.listOf().xmap(TreeSet::new, List::copyOf),
-            StreamCodec.<FriendlyByteBuf, TreeSet<ResourceLocation>>unit(new TreeSet<>()).map(i -> {
-                throw new UnsupportedOperationException("Encoding not supported.");
-            }, i -> {
-                throw new UnsupportedOperationException("Decoding not supported.");
+            StreamCodec.of((buffer, value) -> {
+                throw new EncoderException("Encoding not supported.");
+            }, buffer -> {
+                throw new DecoderException("Decoding not supported.");
             }), data -> data.allSelected
         );
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ACTIVE_SELECTED =
