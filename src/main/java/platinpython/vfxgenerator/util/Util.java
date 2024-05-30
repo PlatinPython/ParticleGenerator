@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Util {
     public static final int MAX_PAYLOAD_SIZE = 1024 * 1024;
@@ -44,6 +46,10 @@ public class Util {
         set.add(list.get(1));
         set.add(list.get(2));
         return set;
+    }
+
+    public static <E> E randomElement(List<? extends E> list) {
+        return list.get(ThreadLocalRandom.current().nextInt(list.size()));
     }
 
     public static double toValue(double value, double minValue, double maxValue, float stepSize) {

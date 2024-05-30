@@ -1,8 +1,11 @@
 package platinpython.vfxgenerator.util.data;
 
+import com.google.common.collect.ImmutableList;
 import dev.lukebemish.codecextras.mutable.DataElement;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import platinpython.vfxgenerator.util.Util;
+
+import java.util.Collection;
 
 @SuppressWarnings("UnstableApiUsage")
 public class OwnedDataElement<T> extends DataElement.Simple<T> {
@@ -21,6 +24,25 @@ public class OwnedDataElement<T> extends DataElement.Simple<T> {
         }
     }
 
+    public static class Viewable<E, T extends Collection<E>> extends OwnedDataElement<T> {
+        private ImmutableList<E> view;
+
+        public Viewable(T value, BlockEntity owner) {
+            super(value, owner);
+            this.view = ImmutableList.copyOf(value);
+        }
+
+        @Override
+        public synchronized void set(T value) {
+            super.set(value);
+            this.view = ImmutableList.copyOf(value);
+        }
+
+        public ImmutableList<E> getView() {
+            return this.view;
+        }
+    }
+
     public static class Bounded<T extends Comparable<T>> extends OwnedDataElement<T> {
         private final BoundedStreamDataElementType<?, ?, T> type;
 
@@ -30,8 +52,8 @@ public class OwnedDataElement<T> extends DataElement.Simple<T> {
         }
 
         @Override
-        public synchronized void set(T t) {
-            super.set(Util.clamp(t, type.min(), type.max()));
+        public synchronized void set(T value) {
+            super.set(Util.clamp(value, type.min(), type.max()));
         }
     }
 
@@ -44,8 +66,8 @@ public class OwnedDataElement<T> extends DataElement.Simple<T> {
         }
 
         @Override
-        public synchronized void set(Range<T> t) {
-            super.set(t.clamp(type.min(), type.max()));
+        public synchronized void set(Range<T> value) {
+            super.set(value.clamp(type.min(), type.max()));
         }
     }
 }

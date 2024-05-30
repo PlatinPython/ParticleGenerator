@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import platinpython.vfxgenerator.block.VFXGeneratorBlock;
 import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Color;
+import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.data.ParticleData;
 import platinpython.vfxgenerator.util.particle.ParticleType;
 import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
@@ -49,10 +50,11 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
                 if (level.getGameTime() % particleData.delay.get() == 0) {
                     ThreadLocalRandom random = ThreadLocalRandom.current();
 
-                    if (particleData.getSelected().isEmpty()) {
+                    if (particleData.activeSelected.getView().isEmpty()) {
                         return;
                     }
-                    ParticleType particleType = DataManager.selectableParticles().get(particleData.getRandomSelected());
+                    ParticleType particleType = DataManager.selectableParticles()
+                        .get(Util.randomElement(particleData.activeSelected.getView()));
                     if (particleType == null) {
                         return;
                     }

@@ -1,6 +1,7 @@
 package platinpython.vfxgenerator.util.data;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import dev.lukebemish.codecextras.Asymmetry;
 import dev.lukebemish.codecextras.mutable.DataElementType;
 import dev.lukebemish.codecextras.stream.mutable.StreamDataElementType;
@@ -20,6 +21,8 @@ import platinpython.vfxgenerator.util.resources.DataManager;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ParticleData {
@@ -33,6 +36,19 @@ public class ParticleData {
                 .map(TreeSet::new, List::copyOf)
                 .mapStream(FriendlyByteBuf::asByteBuf),
             data -> data.allSelected
+        );
+    private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ACTIVE_SELECTED =
+        StreamDataElementType.create(
+            "active_selected",
+            Codec.unit(0)
+                .flatXmap(
+                    i -> DataResult.error(() -> "Decoding not supported."),
+                    i -> DataResult.error(() -> "Encoding not supported.")
+                ),
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).map(TreeSet::new, List::copyOf).map(set -> {
+                set.retainAll(DataManager.selectableParticles().keySet());
+                return set;
+            }, Function.identity()).mapStream(FriendlyByteBuf::asByteBuf), data -> data.activeSelected
         );
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> USE_HSB = StreamDataElementType
         .create("use_hsb", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.useHSB);
@@ -114,22 +130,63 @@ public class ParticleData {
             "full_bright", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.fullBright
         );
 
-    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> FULL_CODEC = DataElementType.codec(
-        true, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X, SPAWN_Y,
-        SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
-    );
-    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> DIFF_CODEC = DataElementType.codec(
-        false, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X, SPAWN_Y,
-        SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
-    );
+    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> FULL_CODEC =
+        Asymmetry
+            .mapDecoding(
+                DataElementType.codec(
+                    true, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE,
+                    SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+                ),
+                consumer -> consumer
+                    .andThen(
+                        data -> data.activeSelected
+                            .set(
+                                data.allSelected.get()
+                                    .stream()
+                                    .filter(DataManager.selectableParticles()::containsKey)
+                                    .collect(
+                                        Collectors
+                                            .toCollection(() -> new TreeSet<>(ResourceLocation::compareNamespaced))
+                                    )
+                            )
+                    )
+            );
+    public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> DIFF_CODEC =
+        Asymmetry
+            .mapDecoding(
+                DataElementType.codec(
+                    false, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE,
+                    SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+                ),
+                consumer -> consumer
+                    .andThen(
+                        data -> data.activeSelected
+                            .set(
+                                data.allSelected.get()
+                                    .stream()
+                                    .filter(DataManager.selectableParticles()::containsKey)
+                                    .collect(
+                                        Collectors
+                                            .toCollection(() -> new TreeSet<>(ResourceLocation::compareNamespaced))
+                                    )
+                            )
+                    )
+            );
     public static final StreamCodec<FriendlyByteBuf, Asymmetry<Consumer<ParticleData>, ParticleData>> DIFF_STREAM_CODEC =
-        StreamDataElementType.streamCodec(
-            false, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X,
-            SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
-        );
+        StreamDataElementType
+            .streamCodec(
+                false, ENABLED, ACTIVE_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE,
+                SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+            )
+            .map(asymmetry -> asymmetry.decoding().map(consumer -> {
+                Consumer<ParticleData> before = data -> data.allSelected.get().removeAll(data.activeSelected.get());
+                return before.andThen(consumer)
+                    .andThen(data -> data.allSelected.get().addAll(data.activeSelected.get()));
+            }).mapOrElse(Asymmetry::ofDecoding, ignored -> asymmetry), Function.identity());
 
     public final OwnedDataElement<Boolean> enabled;
     public final OwnedDataElement<TreeSet<ResourceLocation>> allSelected;
+    public final OwnedDataElement.Viewable<ResourceLocation, TreeSet<ResourceLocation>> activeSelected;
     public final OwnedDataElement<Boolean> useHSB;
     public final OwnedDataElement.BoundedRange<Integer> rgbColor;
     public final OwnedDataElement.BoundedRange<Float> hue;
@@ -155,6 +212,7 @@ public class ParticleData {
                 DataManager.selectableParticles().keySet(), ResourceLocation::compareNamespaced
             ), owner
         );
+        this.activeSelected = new OwnedDataElement.Viewable<>(new TreeSet<>(this.allSelected.get()), owner);
         this.useHSB = new OwnedDataElement<>(false, owner);
         this.rgbColor = new OwnedDataElement.BoundedRange<>(new Range<>(0xFF000000, 0xFFFFFFFF), owner, RGB_COLOR);
         this.hue = new OwnedDataElement.BoundedRange<>(new Range<>(0F, 1F), owner, HUE);
