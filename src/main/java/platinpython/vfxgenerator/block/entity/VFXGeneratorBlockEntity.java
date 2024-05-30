@@ -44,75 +44,58 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         }
         if ((state.getValue(VFXGeneratorBlock.INVERTED) && !state.getValue(VFXGeneratorBlock.POWERED))
             || (!state.getValue(VFXGeneratorBlock.INVERTED) && state.getValue(VFXGeneratorBlock.POWERED))) {
-            if (generatorBlockEntity.particleData.enabled.get()) {
-                if (level.getGameTime() % generatorBlockEntity.particleData.delay.get() == 0) {
+            ParticleData particleData = generatorBlockEntity.particleData;
+            if (particleData.enabled.get()) {
+                if (level.getGameTime() % particleData.delay.get() == 0) {
                     ThreadLocalRandom random = ThreadLocalRandom.current();
 
-                    if (generatorBlockEntity.particleData.getSelected().isEmpty()) {
+                    if (particleData.getSelected().isEmpty()) {
                         return;
                     }
-                    ParticleType particleType =
-                        DataManager.selectableParticles().get(generatorBlockEntity.particleData.getRandomSelected());
+                    ParticleType particleType = DataManager.selectableParticles().get(particleData.getRandomSelected());
                     if (particleType == null) {
                         return;
                     }
 
                     int color;
-                    if (generatorBlockEntity.particleData.useHSB.get()) {
-                        color = Color.getRandomHSBColor(random, new float[]{
-                            generatorBlockEntity.particleData.hue.get().start(),
-                            generatorBlockEntity.particleData.saturation.get().start(),
-                            generatorBlockEntity.particleData.brightness.get().start()
-                        }, new float[]{
-                            generatorBlockEntity.particleData.hue.get().end(),
-                            generatorBlockEntity.particleData.saturation.get().end(),
-                            generatorBlockEntity.particleData.brightness.get().end()
-                        });
+                    if (particleData.useHSB.get()) {
+                        color = Color.getRandomHSBColor(
+                            random, particleData.hue.get().start(), particleData.saturation.get().start(),
+                            particleData.brightness.get().start(), particleData.hue.get().end(),
+                            particleData.saturation.get().end(), particleData.brightness.get().end()
+                        );
                     } else {
                         color = Color.getRandomRGBColor(
-                            random, generatorBlockEntity.particleData.rgbColor.get().start(),
-                            generatorBlockEntity.particleData.rgbColor.get().end()
+                            random, particleData.rgbColor.get().start(), particleData.rgbColor.get().end()
                         );
                     }
 
-                    int lifetime = Math.round(
-                        (generatorBlockEntity.particleData.lifetime.get().start()
-                            + (random.nextFloat() * (generatorBlockEntity.particleData.lifetime.get().end()
-                                - generatorBlockEntity.particleData.lifetime.get().start())))
-                    );
+                    int lifetime =
+                        random.nextInt(particleData.lifetime.get().start(), particleData.lifetime.get().end() + 1);
 
-                    float size = generatorBlockEntity.particleData.size.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.size.get().end()
-                            - generatorBlockEntity.particleData.size.get().start()));
+                    float size =
+                        random.nextFloat(particleData.size.get().start(), Math.nextUp(particleData.size.get().end()));
 
                     Vec3 center = Vec3.atCenterOf(pos);
-                    double spawnX = center.x + generatorBlockEntity.particleData.spawnX.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnX.get().end()
-                            - generatorBlockEntity.particleData.spawnX.get().start()));
-                    double spawnY = center.y + generatorBlockEntity.particleData.spawnY.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnY.get().end()
-                            - generatorBlockEntity.particleData.spawnY.get().start()));
-                    double spawnZ = center.z + generatorBlockEntity.particleData.spawnZ.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.spawnZ.get().end()
-                            - generatorBlockEntity.particleData.spawnZ.get().start()));
-                    center = new Vec3(spawnX, spawnY, spawnZ);
+                    double spawnX = random
+                        .nextFloat(particleData.spawnX.get().start(), Math.nextUp(particleData.spawnX.get().end()));
+                    double spawnY = random
+                        .nextFloat(particleData.spawnY.get().start(), Math.nextUp(particleData.spawnY.get().end()));
+                    double spawnZ = random
+                        .nextFloat(particleData.spawnZ.get().start(), Math.nextUp(particleData.spawnZ.get().end()));
+                    center = center.add(spawnX, spawnY, spawnZ);
 
-                    double motionX = generatorBlockEntity.particleData.motionX.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionX.get().end()
-                            - generatorBlockEntity.particleData.motionX.get().start()));
-                    double motionY = generatorBlockEntity.particleData.motionY.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionY.get().end()
-                            - generatorBlockEntity.particleData.motionY.get().start()));
-                    double motionZ = generatorBlockEntity.particleData.motionZ.get().start()
-                        + (random.nextFloat() * (generatorBlockEntity.particleData.motionZ.get().end()
-                            - generatorBlockEntity.particleData.motionZ.get().start()));
+                    double motionX = random
+                        .nextFloat(particleData.motionX.get().start(), Math.nextUp(particleData.motionX.get().end()));
+                    double motionY = random
+                        .nextFloat(particleData.motionY.get().start(), Math.nextUp(particleData.motionY.get().end()));
+                    double motionZ = random
+                        .nextFloat(particleData.motionZ.get().start(), Math.nextUp(particleData.motionZ.get().end()));
                     Vec3 motion = new Vec3(motionX, motionY, motionZ);
 
                     ClientUtils.addParticle(
-                        level, particleType, color, lifetime, size, center, motion,
-                        generatorBlockEntity.particleData.gravity.get(),
-                        generatorBlockEntity.particleData.collision.get(),
-                        generatorBlockEntity.particleData.fullBright.get()
+                        level, particleType, color, lifetime, size, center, motion, particleData.gravity.get(),
+                        particleData.collision.get(), particleData.fullBright.get()
                     );
                 }
             }

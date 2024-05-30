@@ -40,13 +40,14 @@ public record VFXGeneratorDestroyParticlesPayload(Vec3 pos) implements CustomPac
         public void handle(VFXGeneratorDestroyParticlesPayload message, IPayloadContext context) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             for (int i = 0; i < 100; i++) {
-                double motionX = (random.nextFloat() * (.2F)) - .1F;
-                double motionY = (random.nextFloat() * (.2F)) - .1F;
-                double motionZ = (random.nextFloat() * (.2F)) - .1F;
+                double motionX = random.nextFloat(-.1F, Math.nextUp(.1F));
+                double motionY = random.nextFloat(-.1F, Math.nextUp(.1F));
+                double motionZ = random.nextFloat(-.1F, Math.nextUp(.1F));
                 Vec3 motion = new Vec3(motionX, motionY, motionZ);
                 ClientUtils.addParticle(
-                    null, LIST.get(random.nextInt(LIST.size())), Color.HSBtoRGB(random.nextFloat(), 1F, 1F),
-                    Math.round(5 + (random.nextFloat() * (15 - 5))), .3F, message.pos, motion, 0F, false, false
+                    null, LIST.get(random.nextInt(LIST.size())),
+                    Color.HSBtoRGB(random.nextFloat(0F, Math.nextUp(1F)), 1F, 1F), random.nextInt(5, 16), .3F,
+                    message.pos, motion, 0F, false, false
                 );
             }
         }

@@ -1,6 +1,8 @@
 package platinpython.vfxgenerator.util;
 
-import java.util.Random;
+import net.minecraft.util.FastColor;
+
+import java.util.random.RandomGenerator;
 
 public class Color {
     private final int value;
@@ -112,18 +114,26 @@ public class Color {
         return new Color(HSBtoRGB(h, s, b));
     }
 
-    public static int getRandomRGBColor(Random random, int color1, int color2) {
-        int r =
-            Math.round((random.nextFloat() * ((color2 >> 16 & 0xFF) - (color1 >> 16 & 0xFF))) + (color1 >> 16 & 0xFF));
-        int g = Math.round((random.nextFloat() * ((color2 >> 8 & 0xFF) - (color1 >> 8 & 0xFF))) + (color1 >> 8 & 0xFF));
-        int b = Math.round((random.nextFloat() * ((color2 & 0xFF) - (color1 & 0xFF))) + (color1 & 0xFF));
-        return 0xff000000 | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | b & 0xFF;
+    public static int getRandomRGBColor(RandomGenerator random, int color1, int color2) {
+        return FastColor.ARGB32.color(
+            random.nextInt(FastColor.ARGB32.red(color1), FastColor.ARGB32.red(color2) + 1),
+            random.nextInt(FastColor.ARGB32.blue(color1), FastColor.ARGB32.blue(color2) + 1),
+            random.nextInt(FastColor.ARGB32.green(color1), FastColor.ARGB32.green(color2) + 1)
+        );
     }
 
-    public static int getRandomHSBColor(Random random, float[] hsb1, float[] hsb2) {
-        float hue = random.nextFloat() * (hsb2[0] - hsb1[0]) + hsb1[0];
-        float saturation = random.nextFloat() * (hsb2[1] - hsb1[1]) + hsb1[1];
-        float brightness = random.nextFloat() * (hsb2[2] - hsb1[2]) + hsb1[2];
+    public static int getRandomHSBColor(
+        RandomGenerator random,
+        float hue1,
+        float saturation1,
+        float brightness1,
+        float hue2,
+        float saturation2,
+        float brightness2
+    ) {
+        float hue = random.nextFloat(hue1, Math.nextUp(hue2));
+        float saturation = random.nextFloat(saturation1, Math.nextUp(saturation2));
+        float brightness = random.nextFloat(brightness1, Math.nextUp(brightness2));
         return HSBtoRGB(hue, saturation, brightness);
     }
 
