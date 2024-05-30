@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ParticleData {
-
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, Boolean> ENABLED = StreamDataElementType
         .create("enabled", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.enabled);
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ALL_SELECTED =

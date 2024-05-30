@@ -17,6 +17,22 @@ public record Range<T extends Comparable<T>>(T start, T end) {
         }
     }
 
+    public Range<T> with(T start, T end) {
+        if (this.start.compareTo(start) != 0 || this.end.compareTo(end) != 0) {
+            return new Range<>(start, end);
+        } else {
+            return this;
+        }
+    }
+
+    public Range<T> withStart(T start) {
+        return new Range<>(start, this.end);
+    }
+
+    public Range<T> withEnd(T end) {
+        return new Range<>(this.start, end);
+    }
+
     public Range<T> clamp(T min, T max) {
         T newStart = Util.clamp(this.start, min, max);
         T newEnd = Util.clamp(this.end, min, max);

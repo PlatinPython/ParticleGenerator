@@ -24,8 +24,7 @@ public class ParticleTextureSelectionScreen extends Screen {
         }
 
         this.textureOptionsList = new TextureOptionsList(
-            this.minecraft, this.width, this.height - 64, 32, 50, this.parent.particleData::setSelected,
-            this.parent.particleData::getSelected, this.parent::sendToServer
+            this.minecraft, this.width, this.height - 64, 32, 50, this.parent.particleData.activeSelected
         );
 
         this.addRenderableWidget(this.textureOptionsList);
@@ -45,6 +44,7 @@ public class ParticleTextureSelectionScreen extends Screen {
             this.parent.onClose();
         }
         this.textureOptionsList.children().forEach(TextureOptionsList.TextureOptionsListEntry::updateValue);
+        this.parent.sendToServer();
     }
 
     @Override

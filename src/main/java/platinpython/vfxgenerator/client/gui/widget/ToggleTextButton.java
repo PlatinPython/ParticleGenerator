@@ -7,14 +7,14 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import platinpython.vfxgenerator.util.Util;
+import platinpython.vfxgenerator.util.data.OwnedDataElement;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ToggleTextButton extends UpdateableWidget {
     private final Component displayTextFalse;
     private final Component displayTextTrue;
 
-    private final Util.BooleanConsumer setValueFunction;
-    private final Util.BooleanSupplier valueSupplier;
+    private final OwnedDataElement<Boolean> dataElement;
 
     public ToggleTextButton(
         int x,
@@ -23,15 +23,12 @@ public class ToggleTextButton extends UpdateableWidget {
         int height,
         Component displayTextFalse,
         Component displayTextTrue,
-        Util.BooleanConsumer setValueFunction,
-        Util.BooleanSupplier valueSupplier,
-        Runnable applyValueFunction
+        OwnedDataElement<Boolean> dataElement
     ) {
-        super(x, y, width, height, applyValueFunction);
+        super(x, y, width, height);
         this.displayTextFalse = displayTextFalse;
         this.displayTextTrue = displayTextTrue;
-        this.setValueFunction = setValueFunction;
-        this.valueSupplier = valueSupplier;
+        this.dataElement = dataElement;
         this.updateMessage();
     }
 
@@ -54,9 +51,8 @@ public class ToggleTextButton extends UpdateableWidget {
     @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
-        this.setValueFunction.accept(!this.valueSupplier.get());
+        this.dataElement.set(!this.dataElement.get());
         this.updateMessage();
-        this.applyValue();
     }
 
     @Override
@@ -66,7 +62,7 @@ public class ToggleTextButton extends UpdateableWidget {
 
     @Override
     protected void updateMessage() {
-        this.setMessage(valueSupplier.get() ? displayTextTrue : displayTextFalse);
+        this.setMessage(this.dataElement.get() ? displayTextTrue : displayTextFalse);
     }
 
     @Override

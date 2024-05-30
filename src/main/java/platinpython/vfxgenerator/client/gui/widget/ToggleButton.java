@@ -3,30 +3,21 @@ package platinpython.vfxgenerator.client.gui.widget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.resources.ResourceLocation;
-import platinpython.vfxgenerator.util.Util;
+import platinpython.vfxgenerator.util.data.OwnedDataElement;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ToggleButton extends UpdateableWidget {
-    private final Util.BooleanConsumer setValueFunction;
-    private final Util.BooleanSupplier valueSupplier;
+    private final OwnedDataElement<Boolean> dataElement;
 
-    public ToggleButton(
-        int x,
-        int y,
-        int width,
-        int height,
-        Util.BooleanConsumer setValueFunction,
-        Util.BooleanSupplier valueSupplier,
-        Runnable applyValueFunction
-    ) {
-        super(x, y, width, height, applyValueFunction);
-        this.setValueFunction = setValueFunction;
-        this.valueSupplier = valueSupplier;
+    public ToggleButton(int x, int y, int width, int height, OwnedDataElement<Boolean> dataElement) {
+        super(x, y, width, height);
+        this.dataElement = dataElement;
     }
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF000000);
-        if (this.valueSupplier.get()) {
+        if (this.dataElement.get()) {
             guiGraphics.fill(
                 this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1,
                 0xFF00FF00
@@ -54,8 +45,7 @@ public class ToggleButton extends UpdateableWidget {
     @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
-        this.setValueFunction.accept(!this.valueSupplier.get());
-        this.applyValue();
+        this.dataElement.set(!this.dataElement.get());
     }
 
     @Override

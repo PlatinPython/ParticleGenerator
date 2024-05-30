@@ -13,8 +13,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import platinpython.vfxgenerator.util.Util;
+import platinpython.vfxgenerator.util.data.Range;
 
 import java.text.DecimalFormat;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FloatRangeSlider extends UpdateableWidget {
     private static final ResourceLocation SLIDER_SPRITE = new ResourceLocation("widget/slider");
@@ -23,16 +26,16 @@ public class FloatRangeSlider extends UpdateableWidget {
     private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE =
         new ResourceLocation("widget/slider_handle_highlighted");
 
-    private final double minValue, maxValue;
+    private final float minValue;
+    private final float maxValue;
     private final float stepSize;
     private final DecimalFormat format;
     private final Component prefix;
     private final Component suffix;
-    private final Util.FloatConsumer setLeftValueFunction;
-    private final Util.FloatConsumer setRightValueFunction;
-    private final Util.FloatSupplier leftValueSupplier;
-    private final Util.FloatSupplier rightValueSupplier;
-    private double leftSliderValue, rightSliderValue;
+    private final Consumer<Range<Float>> setRange;
+    private final Supplier<Range<Float>> getRange;
+    private double leftSliderValue;
+    private double rightSliderValue;
     private boolean isLeftSelected;
     private boolean stopped;
 
@@ -43,16 +46,13 @@ public class FloatRangeSlider extends UpdateableWidget {
         int height,
         Component prefix,
         Component suffix,
-        double minValue,
-        double maxValue,
+        float minValue,
+        float maxValue,
         float stepSize,
-        Util.FloatConsumer setLeftValueFunction,
-        Util.FloatConsumer setRightValueFunction,
-        Util.FloatSupplier leftValueSupplier,
-        Util.FloatSupplier rightValueSupplier,
-        Runnable applyValueFunction
+        Consumer<Range<Float>> setRange,
+        Supplier<Range<Float>> getRange
     ) {
-        super(x, y, width, height, applyValueFunction);
+        super(x, y, width, height);
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.stepSize = stepSize;
@@ -62,11 +62,9 @@ public class FloatRangeSlider extends UpdateableWidget {
                 : new DecimalFormat(Float.toString(this.stepSize).replaceAll("\\d", "0"));
         this.prefix = prefix;
         this.suffix = suffix;
-        this.setLeftValueFunction = setLeftValueFunction;
-        this.setRightValueFunction = setRightValueFunction;
-        this.leftValueSupplier = leftValueSupplier;
-        this.rightValueSupplier = rightValueSupplier;
-        this.setupSliderValues(this.leftValueSupplier.get(), this.rightValueSupplier.get());
+        this.setRange = setRange;
+        this.getRange = getRange;
+        this.setupSliderValues(this.getRange.get().start(), this.getRange.get().end());
     }
 
     private void setupSliderValues(double leftValue, double rightValue) {
@@ -78,9 +76,7 @@ public class FloatRangeSlider extends UpdateableWidget {
         this.rightSliderValue = Util.toValue(
             Mth.clamp(this.rightSliderValue, this.leftSliderValue, 1D), this.minValue, this.maxValue, this.stepSize
         );
-        this.setLeftValueFunction.accept((float) this.getLeftSliderValue());
-        this.setRightValueFunction.accept((float) this.getRightSliderValue());
-        this.applyValue();
+        this.setRange.accept(this.getRange.get().with(this.getLeftSliderValue(), this.getRightSliderValue()));
         this.updateMessage();
     }
 
@@ -215,19 +211,17 @@ public class FloatRangeSlider extends UpdateableWidget {
 
     @Override
     public void updateValue() {
-        if (this.leftValueSupplier.get() != this.getLeftSliderValue()) {
-            this.leftSliderValue =
-                Util.clamp(this.leftValueSupplier.get(), this.minValue, this.maxValue, this.stepSize);
+        if (this.getRange.get().start() != this.getLeftSliderValue()) {
+            this.leftSliderValue = Util.clamp(this.getRange.get().start(), this.minValue, this.maxValue, this.stepSize);
         }
-        if (this.rightValueSupplier.get() != this.getRightSliderValue()) {
-            this.rightSliderValue =
-                Util.clamp(this.rightValueSupplier.get(), this.minValue, this.maxValue, this.stepSize);
+        if (this.getRange.get().end() != this.getRightSliderValue()) {
+            this.rightSliderValue = Util.clamp(this.getRange.get().end(), this.minValue, this.maxValue, this.stepSize);
         }
         this.updateMessage();
     }
 
-    private double getLeftSliderValue() {
-        return this.leftSliderValue * (this.maxValue - this.minValue) + this.minValue;
+    private float getLeftSliderValue() {
+        return (float) (this.leftSliderValue * (this.maxValue - this.minValue) + this.minValue);
     }
 
     private void setLeftSliderValue(double value) {
@@ -235,15 +229,14 @@ public class FloatRangeSlider extends UpdateableWidget {
         this.leftSliderValue =
             Util.toValue(Mth.clamp(value, 0.0D, this.rightSliderValue), this.minValue, this.maxValue, this.stepSize);
         if (d0 != this.leftSliderValue) {
-            this.setLeftValueFunction.accept((float) this.getLeftSliderValue());
-            this.applyValue();
+            this.setRange.accept(this.getRange.get().withStart(this.getLeftSliderValue()));
         }
 
         this.updateMessage();
     }
 
-    private double getRightSliderValue() {
-        return this.rightSliderValue * (this.maxValue - this.minValue) + this.minValue;
+    private float getRightSliderValue() {
+        return (float) (this.rightSliderValue * (this.maxValue - this.minValue) + this.minValue);
     }
 
     private void setRightSliderValue(double value) {
@@ -251,8 +244,7 @@ public class FloatRangeSlider extends UpdateableWidget {
         this.rightSliderValue =
             Util.toValue(Mth.clamp(value, this.leftSliderValue, 1.0D), this.minValue, this.maxValue, this.stepSize);
         if (d0 != this.rightSliderValue) {
-            this.setRightValueFunction.accept((float) this.getRightSliderValue());
-            this.applyValue();
+            this.setRange.accept(this.getRange.get().withEnd(this.getRightSliderValue()));
         }
 
         this.updateMessage();

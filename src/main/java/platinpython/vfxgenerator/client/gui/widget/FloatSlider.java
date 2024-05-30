@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import platinpython.vfxgenerator.util.Util;
 
 import java.text.DecimalFormat;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FloatSlider extends UpdateableWidget {
     private static final ResourceLocation SLIDER_SPRITE = new ResourceLocation("widget/slider");
@@ -22,13 +24,14 @@ public class FloatSlider extends UpdateableWidget {
     private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE =
         new ResourceLocation("widget/slider_handle_highlighted");
 
-    private final double minValue, maxValue;
+    private final float minValue;
+    private final float maxValue;
     private final float stepSize;
     private final DecimalFormat format;
     private final Component prefix;
     private final Component suffix;
-    private final Util.FloatConsumer setValueFunction;
-    private final Util.FloatSupplier valueSupplier;
+    private final Consumer<Float> setValue;
+    private final Supplier<Float> getValue;
     private double sliderValue;
 
     public FloatSlider(
@@ -38,14 +41,13 @@ public class FloatSlider extends UpdateableWidget {
         int height,
         Component prefix,
         Component suffix,
-        double minValue,
-        double maxValue,
+        float minValue,
+        float maxValue,
         float stepSize,
-        Util.FloatConsumer setValueFunction,
-        Util.FloatSupplier valueSupplier,
-        Runnable applyValueFunction
+        Consumer<Float> setValue,
+        Supplier<Float> getValue
     ) {
-        super(x, y, width, height, applyValueFunction);
+        super(x, y, width, height);
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.stepSize = stepSize;
@@ -55,15 +57,14 @@ public class FloatSlider extends UpdateableWidget {
                 : new DecimalFormat(Float.toString(this.stepSize).replaceAll("\\d", "0"));
         this.prefix = prefix;
         this.suffix = suffix;
-        this.setValueFunction = setValueFunction;
-        this.valueSupplier = valueSupplier;
-        this.setupSliderValues(this.valueSupplier.get());
+        this.setValue = setValue;
+        this.getValue = getValue;
+        this.setupSliderValues(this.getValue.get());
     }
 
     private void setupSliderValues(double value) {
         this.sliderValue = Util.clamp(value, this.minValue, this.maxValue, this.stepSize);
-        this.setValueFunction.accept((float) this.getSliderValue());
-        this.applyValue();
+        this.setValue.accept(this.getSliderValue());
         this.updateMessage();
     }
 
@@ -94,8 +95,8 @@ public class FloatSlider extends UpdateableWidget {
 
     @Override
     public void updateValue() {
-        if (this.valueSupplier.get() != this.getSliderValue()) {
-            this.sliderValue = Util.clamp(this.valueSupplier.get(), this.minValue, this.maxValue, this.stepSize);
+        if (this.getValue.get() != this.getSliderValue()) {
+            this.sliderValue = Util.clamp(this.getValue.get(), this.minValue, this.maxValue, this.stepSize);
         }
         this.updateMessage();
     }
@@ -136,16 +137,15 @@ public class FloatSlider extends UpdateableWidget {
         return false;
     }
 
-    private double getSliderValue() {
-        return this.sliderValue * (this.maxValue - this.minValue) + this.minValue;
+    private float getSliderValue() {
+        return (float) (this.sliderValue * (this.maxValue - this.minValue) + this.minValue);
     }
 
     private void setSliderValue(double value) {
         double d0 = this.sliderValue;
         this.sliderValue = Util.toValue(value, this.minValue, this.maxValue, this.stepSize);
         if (d0 != this.sliderValue) {
-            this.setValueFunction.accept((float) this.getSliderValue());
-            this.applyValue();
+            this.setValue.accept(this.getSliderValue());
         }
 
         this.updateMessage();

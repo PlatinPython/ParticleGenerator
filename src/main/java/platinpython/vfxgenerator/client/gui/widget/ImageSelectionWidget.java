@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Util;
+import platinpython.vfxgenerator.util.data.OwnedDataElement;
 import platinpython.vfxgenerator.util.particle.ParticleType;
 import platinpython.vfxgenerator.util.particle.ParticleTypes;
 import platinpython.vfxgenerator.util.particle.types.SingleParticle;
@@ -24,13 +25,11 @@ import platinpython.vfxgenerator.util.resources.DataManager;
 
 import java.util.Collections;
 import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ImageSelectionWidget extends UpdateableWidget {
     private final ResourceLocation particleId;
-    private final Consumer<TreeSet<ResourceLocation>> setValueFunction;
-    private final Supplier<TreeSet<ResourceLocation>> valueSupplier;
+    private final OwnedDataElement<TreeSet<ResourceLocation>> dataElement;
 
     private boolean selected;
 
@@ -40,14 +39,11 @@ public class ImageSelectionWidget extends UpdateableWidget {
         int width,
         int height,
         ResourceLocation particleId,
-        Consumer<TreeSet<ResourceLocation>> setValueFunction,
-        Supplier<TreeSet<ResourceLocation>> valueSupplier,
-        Runnable applyValueFunction
+        OwnedDataElement<TreeSet<ResourceLocation>> dataElement
     ) {
-        super(x, y, width, height, applyValueFunction);
+        super(x, y, width, height);
         this.particleId = particleId;
-        this.setValueFunction = setValueFunction;
-        this.valueSupplier = valueSupplier;
+        this.dataElement = dataElement;
         this.updateValue();
     }
 
@@ -108,29 +104,27 @@ public class ImageSelectionWidget extends UpdateableWidget {
         if (Screen.hasControlDown()) {
             this.selected = !this.selected;
             if (!this.selected) {
-                this.selected = this.valueSupplier.get().size() <= 1;
+                this.selected = this.dataElement.get().size() <= 1;
             }
-            TreeSet<ResourceLocation> set = this.valueSupplier.get();
+            TreeSet<ResourceLocation> set = this.dataElement.get();
             if (this.selected) {
                 set.add(this.particleId);
             } else {
                 set.remove(this.particleId);
             }
-            this.setValueFunction.accept(set);
-            this.applyValue();
+            this.dataElement.set(set);
         } else {
-            TreeSet<ResourceLocation> list = Util.createTreeSetFromCollectionWithComparator(
+            TreeSet<ResourceLocation> set = Util.createTreeSetFromCollectionWithComparator(
                 Collections.singletonList(this.particleId), ResourceLocation::compareNamespaced
             );
-            this.setValueFunction.accept(list);
+            this.dataElement.set(set);
             this.selected = true;
-            this.applyValue();
         }
     }
 
     @Override
     public void updateValue() {
-        this.selected = this.valueSupplier.get().contains(particleId);
+        this.selected = this.dataElement.get().contains(particleId);
     }
 
     @Override
