@@ -32,19 +32,16 @@ public class ParticleData {
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ALL_SELECTED =
         StreamDataElementType.create(
             "all_selected", ResourceLocation.CODEC.listOf().xmap(TreeSet::new, List::copyOf),
-            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list())
-                .map(TreeSet::new, List::copyOf)
-                .mapStream(FriendlyByteBuf::asByteBuf),
-            data -> data.allSelected
+            StreamCodec.<FriendlyByteBuf, TreeSet<ResourceLocation>>unit(new TreeSet<>()).map(i -> {
+                throw new UnsupportedOperationException("Encoding not supported.");
+            }, i -> {
+                throw new UnsupportedOperationException("Decoding not supported.");
+            }), data -> data.allSelected
         );
     private static final StreamDataElementType<FriendlyByteBuf, ParticleData, TreeSet<ResourceLocation>> ACTIVE_SELECTED =
         StreamDataElementType.create(
             "active_selected",
-            Codec.unit(0)
-                .flatXmap(
-                    i -> DataResult.error(() -> "Decoding not supported."),
-                    i -> DataResult.error(() -> "Encoding not supported.")
-                ),
+            Codec.unit(new TreeSet<ResourceLocation>()).validate(i -> DataResult.error(() -> "Not supported.")),
             ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).map(TreeSet::new, List::copyOf).map(set -> {
                 set.retainAll(DataManager.selectableParticles().keySet());
                 return set;
