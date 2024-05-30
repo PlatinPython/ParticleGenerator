@@ -1,9 +1,9 @@
 package platinpython.vfxgenerator.client.gui.screen;
 
+import dev.lukebemish.codecextras.Asymmetry;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -15,7 +15,7 @@ import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Color;
 import platinpython.vfxgenerator.util.Constants;
 import platinpython.vfxgenerator.util.data.ParticleData;
-import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDataSyncPayload;
+import platinpython.vfxgenerator.util.network.packets.ParticleDataSyncPayload;
 
 public class ParticleOptionsScreen extends Screen {
     protected final VFXGeneratorBlockEntity blockEntity;
@@ -275,8 +275,8 @@ public class ParticleOptionsScreen extends Screen {
 
     protected final void sendToServer() {
         PacketDistributor.sendToServer(
-            new VFXGeneratorDataSyncPayload(
-                this.blockEntity.saveToTag(new CompoundTag()), this.blockEntity.getBlockPos()
+            new ParticleDataSyncPayload(
+                Asymmetry.ofEncoding(this.blockEntity.getParticleData()), this.blockEntity.getBlockPos()
             )
         );
     }

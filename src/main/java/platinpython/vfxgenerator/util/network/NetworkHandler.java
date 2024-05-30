@@ -7,17 +7,16 @@ import platinpython.vfxgenerator.util.network.packets.MissingImagesPayload;
 import platinpython.vfxgenerator.util.network.packets.RequiredImageHashesPayload;
 import platinpython.vfxgenerator.util.network.packets.SelectableParticlesSyncPayload;
 import platinpython.vfxgenerator.util.network.packets.UpdateRequiredImagesPayload;
-import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDataSyncPayload;
+import platinpython.vfxgenerator.util.network.packets.ParticleDataSyncPayload;
 import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPayload;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
 
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
         registrar.playToServer(
-            VFXGeneratorDataSyncPayload.TYPE, VFXGeneratorDataSyncPayload.STREAM_CODEC,
-            new VFXGeneratorDataSyncPayload.Handler()
+            ParticleDataSyncPayload.TYPE, ParticleDataSyncPayload.STREAM_CODEC, new ParticleDataSyncPayload.Handler()
         );
         registrar.playToClient(
             VFXGeneratorDestroyParticlesPayload.TYPE, VFXGeneratorDestroyParticlesPayload.STREAM_CODEC,
