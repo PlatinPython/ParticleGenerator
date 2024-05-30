@@ -52,8 +52,8 @@ public record Range<T extends Comparable<T>>(T start, T end) {
         );
     }
 
-    public static <T extends Comparable<T>> StreamCodec<? extends ByteBuf, Range<T>> getStreamCodec(
-        StreamCodec<? extends ByteBuf, T> baseCodec
+    public static <B extends ByteBuf, T extends Comparable<T>> StreamCodec<B, Range<T>> getStreamCodec(
+        StreamCodec<B, T> baseCodec
     ) {
         return StreamCodec.composite(baseCodec, Range::start, baseCodec, Range::end, Range::new);
     }

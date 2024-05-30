@@ -52,61 +52,73 @@ public class ParticleData {
         .create("use_hsb", Codec.BOOL, ByteBufCodecs.BOOL.mapStream(FriendlyByteBuf::asByteBuf), data -> data.useHSB);
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> RGB_COLOR =
         new BoundedRangeStreamDataElementType<>(
-            "rgb_color", Range.getCodec(Codec.INT), Range.getStreamCodec(ByteBufCodecs.INT), data -> data.rgbColor,
+            "rgb_color", Range.getCodec(Codec.INT),
+            Range.getStreamCodec(ByteBufCodecs.INT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.rgbColor,
             0xFF000000, 0xFFFFFFFF
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> HUE =
         new BoundedRangeStreamDataElementType<>(
-            "hue", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.hue, 0F, 1F
+            "hue", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.hue, 0F, 1F
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SATURATION =
         new BoundedRangeStreamDataElementType<>(
-            "saturation", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT),
-            data -> data.saturation, 0F, 1F
+            "saturation", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.saturation,
+            0F, 1F
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> BRIGHTNESS =
         new BoundedRangeStreamDataElementType<>(
-            "brightness", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT),
-            data -> data.brightness, 0F, 1F
+            "brightness", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.brightness,
+            0F, 1F
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> LIFETIME =
         new BoundedRangeStreamDataElementType<>(
-            "lifetime", Range.getCodec(Codec.INT), Range.getStreamCodec(ByteBufCodecs.INT), data -> data.lifetime,
+            "lifetime", Range.getCodec(Codec.INT),
+            Range.getStreamCodec(ByteBufCodecs.INT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.lifetime,
             Constants.ParticleConstants.Values.MIN_LIFETIME, Constants.ParticleConstants.Values.MAX_LIFETIME
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SIZE =
         new BoundedRangeStreamDataElementType<>(
-            "size", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.size,
+            "size", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.size,
             Constants.ParticleConstants.Values.MIN_SIZE, Constants.ParticleConstants.Values.MAX_SIZE
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_X =
         new BoundedRangeStreamDataElementType<>(
-            "spawn_x", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnX,
+            "spawn_x", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.spawnX,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_Y =
         new BoundedRangeStreamDataElementType<>(
-            "spawn_y", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnY,
+            "spawn_y", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.spawnY,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> SPAWN_Z =
         new BoundedRangeStreamDataElementType<>(
-            "spawn_z", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.spawnZ,
+            "spawn_z", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.spawnZ,
             Constants.ParticleConstants.Values.MIN_SPAWN, Constants.ParticleConstants.Values.MAX_SPAWN
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_X =
         new BoundedRangeStreamDataElementType<>(
-            "motion_x", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionX,
+            "motion_x", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.motionX,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_Y =
         new BoundedRangeStreamDataElementType<>(
-            "motion_y", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionY,
+            "motion_y", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.motionY,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
     private static final BoundedRangeStreamDataElementType<FriendlyByteBuf, ParticleData, Float> MOTION_Z =
         new BoundedRangeStreamDataElementType<>(
-            "motion_z", Range.getCodec(Codec.FLOAT), Range.getStreamCodec(ByteBufCodecs.FLOAT), data -> data.motionZ,
+            "motion_z", Range.getCodec(Codec.FLOAT),
+            Range.getStreamCodec(ByteBufCodecs.FLOAT).mapStream(FriendlyByteBuf::asByteBuf), data -> data.motionZ,
             Constants.ParticleConstants.Values.MIN_MOTION, Constants.ParticleConstants.Values.MAX_MOTION
         );
     private static final BoundedStreamDataElementType<FriendlyByteBuf, ParticleData, Integer> DELAY =
