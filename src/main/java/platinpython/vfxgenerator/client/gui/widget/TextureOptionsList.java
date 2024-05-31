@@ -1,19 +1,17 @@
 package platinpython.vfxgenerator.client.gui.widget;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
-import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.data.OwnedDataElement;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 public class TextureOptionsList extends ContainerObjectSelectionList<TextureOptionsList.TextureOptionsListEntry> {
     public TextureOptionsList(
@@ -22,18 +20,15 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
         int height,
         int top,
         int itemHeight,
-        OwnedDataElement<TreeSet<ResourceLocation>> dataElement
+        OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement
     ) {
         super(minecraft, width, height, top, itemHeight);
         this.init(dataElement);
     }
 
-    private void init(OwnedDataElement<TreeSet<ResourceLocation>> dataElement) {
-        List<ResourceLocation> list = new ArrayList<>(
-            Util.createTreeSetFromCollectionWithComparator(
-                DataManager.selectableParticles().keySet(), ResourceLocation::compareNamespaced
-            )
-        );
+    private void init(OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement) {
+        List<ResourceLocation> list =
+            DataManager.selectableParticles().keySet().stream().sorted(ResourceLocation::compareNamespaced).toList();
         for (int i = 0; i < list.size() - list.size() % 3; i += 3) {
             addEntry(
                 TextureOptionsListEntry
@@ -79,7 +74,7 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
         public static TextureOptionsListEntry addOneTexture(
             int guiWidth,
             ResourceLocation particleId1,
-            OwnedDataElement<TreeSet<ResourceLocation>> dataElement
+            OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement
         ) {
             ImageSelectionWidget child1 =
                 new ImageSelectionWidget(guiWidth / 2 - 25, 0, 50, 50, particleId1, dataElement);
@@ -90,7 +85,7 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
             int guiWidth,
             ResourceLocation particleId1,
             ResourceLocation particleId2,
-            OwnedDataElement<TreeSet<ResourceLocation>> dataElement
+            OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement
         ) {
             ImageSelectionWidget child1 =
                 new ImageSelectionWidget(guiWidth / 2 - 50, 0, 50, 50, particleId1, dataElement);
@@ -103,7 +98,7 @@ public class TextureOptionsList extends ContainerObjectSelectionList<TextureOpti
             ResourceLocation particleId1,
             ResourceLocation particleId2,
             ResourceLocation particleId3,
-            OwnedDataElement<TreeSet<ResourceLocation>> dataElement
+            OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement
         ) {
             ImageSelectionWidget child1 =
                 new ImageSelectionWidget(guiWidth / 2 - 75, 0, 50, 50, particleId1, dataElement);

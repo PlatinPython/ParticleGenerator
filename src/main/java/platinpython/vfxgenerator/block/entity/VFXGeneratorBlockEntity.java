@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.VFXGeneratorBlock;
 import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Color;
@@ -167,12 +166,10 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
             ClientboundBlockEntityDataPacket.create(this, (blockEntity, registryAccess) -> {
                 if (blockEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity) {
                     return vfxGeneratorBlockEntity.getDiffUpdateTag(registryAccess);
-                    // return blockEntity.getUpdateTag(registryAccess);
                 } else {
                     return blockEntity.getUpdateTag(registryAccess);
                 }
             });
-        VFXGenerator.LOGGER.info("BE: {}", packet.getTag());
         ParticleData.CLEANER.accept(this.particleData);
         return packet;
     }

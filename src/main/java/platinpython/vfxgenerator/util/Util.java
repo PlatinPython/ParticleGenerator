@@ -1,5 +1,6 @@
 package platinpython.vfxgenerator.util;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import dev.lukebemish.codecextras.mutable.DataElementType;
@@ -12,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
@@ -24,29 +24,13 @@ public class Util {
         return new ResourceLocation(VFXGenerator.MOD_ID, path);
     }
 
-    public static <E> TreeSet<E> createTreeSetFromCollectionWithComparator(
-        Collection<? extends E> collection,
-        Comparator<? super E> comparator
-    ) {
-        TreeSet<E> set = new TreeSet<>(comparator);
-        set.addAll(collection);
-        return set;
-    }
-
-    public static <E> TreeSet<E> getThreeRandomElements(
-        Collection<? extends E> collection,
-        Comparator<? super E> comparator
-    ) {
+    public static <E> ImmutableSortedSet<E> getThreeRandomElements(Collection<E> collection, Comparator<E> comparator) {
         if (collection.size() <= 3) {
-            return createTreeSetFromCollectionWithComparator(collection, comparator);
+            return ImmutableSortedSet.orderedBy(comparator).addAll(collection).build();
         }
-        ArrayList<? extends E> list = new ArrayList<>(collection);
+        ArrayList<E> list = new ArrayList<>(collection);
         Collections.shuffle(list);
-        TreeSet<E> set = new TreeSet<>(comparator);
-        set.add(list.get(0));
-        set.add(list.get(1));
-        set.add(list.get(2));
-        return set;
+        return ImmutableSortedSet.orderedBy(comparator).add(list.get(0)).add(list.get(1)).add(list.get(2)).build();
     }
 
     public static <E> E randomElement(List<? extends E> list) {

@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.Container;
 import net.neoforged.neoforge.network.PacketDistributor;
-import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.client.gui.widget.ToggleButton;
 import platinpython.vfxgenerator.client.gui.widget.VFXGeneratorOptionsList;
@@ -316,7 +315,11 @@ public class ParticleOptionsScreen extends Screen {
         PacketDistributor.sendToServer(
             new ParticleDataSyncPayload(Asymmetry.ofEncoding(this.particleData), this.blockEntity.getBlockPos())
         );
-        VFXGenerator.LOGGER.info("Screen: {}", this.particleData.saveToTag());
+        // TODO: There must be a better way. Currently needed, because ParticleData#CLEANER runs before the Payload is
+        // actually serialized, therefore nothing is serialized.
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException ignored) {}
         ParticleData.CLEANER.accept(this.particleData);
     }
 }

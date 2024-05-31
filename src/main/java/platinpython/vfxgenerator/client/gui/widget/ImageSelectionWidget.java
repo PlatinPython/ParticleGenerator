@@ -1,5 +1,6 @@
 package platinpython.vfxgenerator.client.gui.widget;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -16,20 +17,18 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import platinpython.vfxgenerator.util.ClientUtils;
-import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.data.OwnedDataElement;
 import platinpython.vfxgenerator.util.particle.ParticleType;
 import platinpython.vfxgenerator.util.particle.ParticleTypes;
 import platinpython.vfxgenerator.util.particle.types.SingleParticle;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
-import java.util.Collections;
 import java.util.TreeSet;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ImageSelectionWidget extends UpdateableWidget {
     private final ResourceLocation particleId;
-    private final OwnedDataElement<TreeSet<ResourceLocation>> dataElement;
+    private final OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement;
 
     private boolean selected;
 
@@ -39,7 +38,7 @@ public class ImageSelectionWidget extends UpdateableWidget {
         int width,
         int height,
         ResourceLocation particleId,
-        OwnedDataElement<TreeSet<ResourceLocation>> dataElement
+        OwnedDataElement<ImmutableSortedSet<ResourceLocation>> dataElement
     ) {
         super(x, y, width, height);
         this.particleId = particleId;
@@ -106,18 +105,16 @@ public class ImageSelectionWidget extends UpdateableWidget {
             if (!this.selected) {
                 this.selected = this.dataElement.get().size() <= 1;
             }
-            TreeSet<ResourceLocation> set = this.dataElement.get();
+            TreeSet<ResourceLocation> set = new TreeSet<>(this.dataElement.get());
             if (this.selected) {
                 set.add(this.particleId);
             } else {
                 set.remove(this.particleId);
             }
-            this.dataElement.set(set);
+            this.dataElement.set(ImmutableSortedSet.copyOfSorted(set));
         } else {
-            TreeSet<ResourceLocation> set = Util.createTreeSetFromCollectionWithComparator(
-                Collections.singletonList(this.particleId), ResourceLocation::compareNamespaced
-            );
-            this.dataElement.set(set);
+            this.dataElement
+                .set(ImmutableSortedSet.orderedBy(ResourceLocation::compareNamespaced).add(this.particleId).build());
             this.selected = true;
         }
     }
