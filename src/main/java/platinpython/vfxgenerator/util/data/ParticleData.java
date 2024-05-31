@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -189,13 +190,28 @@ public class ParticleData {
                 SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
             )
             .map(asymmetry -> asymmetry.decoding().map(consumer -> {
+                Consumer<ParticleData> printTag = data -> VFXGenerator.LOGGER.info("StreamCodec: {}", data.saveToTag());
+                Consumer<ParticleData> printActive =
+                    data -> VFXGenerator.LOGGER.info("activeSelected: {}", data.activeSelected.getView());
                 Consumer<ParticleData> before = data -> data.allSelected.get().removeAll(data.activeSelected.get());
                 return before.andThen(consumer)
-                    .andThen(data -> data.allSelected.get().addAll(data.activeSelected.get()));
+                    .andThen(data -> data.allSelected.get().addAll(data.activeSelected.get()))
+                    .andThen(printTag)
+                    .andThen(printActive);
+                // return before.andThen(consumer)
+                // .andThen(data -> data.allSelected.get().addAll(data.activeSelected.get()));
             }).mapOrElse(Asymmetry::ofDecoding, ignored -> asymmetry), Function.identity());
+    public static final Predicate<ParticleData> ANY_DIRTY = Util.anyDirty(
+        ENABLED, ALL_SELECTED, ACTIVE_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE,
+        SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+    );
+    public static final Consumer<ParticleData> CLEANER = DataElementType.cleaner(
+        ENABLED, ALL_SELECTED, ACTIVE_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE,
+        SPAWN_X, SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+    );
 
     public final OwnedDataElement<Boolean> enabled;
-    public final OwnedDataElement<TreeSet<ResourceLocation>> allSelected;
+    public final OwnedDataElement.AlwaysInclude<TreeSet<ResourceLocation>> allSelected;
     public final OwnedDataElement.Viewable<ResourceLocation, TreeSet<ResourceLocation>> activeSelected;
     public final OwnedDataElement<Boolean> useHSB;
     public final OwnedDataElement.BoundedRange<Integer> rgbColor;
@@ -217,7 +233,7 @@ public class ParticleData {
 
     public ParticleData(BlockEntity owner) {
         this.enabled = new OwnedDataElement<>(true, owner);
-        this.allSelected = new OwnedDataElement<>(
+        this.allSelected = new OwnedDataElement.AlwaysInclude<>(
             Util.getThreeRandomElements(
                 DataManager.selectableParticles().keySet(), ResourceLocation::compareNamespaced
             ), owner
@@ -244,6 +260,12 @@ public class ParticleData {
 
     public Tag saveToTag() {
         return FULL_CODEC.encodeStart(NbtOps.INSTANCE, Asymmetry.ofEncoding(this))
+            .resultOrPartial(VFXGenerator.LOGGER::error)
+            .orElse(EndTag.INSTANCE);
+    }
+
+    public Tag saveDiffToTag() {
+        return DIFF_CODEC.encodeStart(NbtOps.INSTANCE, Asymmetry.ofEncoding(this))
             .resultOrPartial(VFXGenerator.LOGGER::error)
             .orElse(EndTag.INSTANCE);
     }

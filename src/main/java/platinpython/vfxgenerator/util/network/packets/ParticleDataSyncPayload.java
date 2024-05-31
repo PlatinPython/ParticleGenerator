@@ -7,13 +7,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import platinpython.vfxgenerator.VFXGenerator;
-import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.data.ParticleData;
+import platinpython.vfxgenerator.util.registries.BlockEntityRegistry;
 
 import java.util.function.Consumer;
 
@@ -35,17 +34,18 @@ public record ParticleDataSyncPayload(Asymmetry<Consumer<ParticleData>, Particle
         @SuppressWarnings("resource")
         public void handle(ParticleDataSyncPayload message, IPayloadContext context) {
             Player sender = context.player();
-            BlockEntity tileEntity = sender.level().getBlockEntity(message.pos);
-            if (tileEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity) {
-                message.asymmetry.decoding()
-                    .resultOrPartial(VFXGenerator.LOGGER::error)
-                    .ifPresent(consumer -> consumer.accept(vfxGeneratorBlockEntity.getParticleData()));
-            }
             sender.level()
-                .sendBlockUpdated(
-                    message.pos, sender.level().getBlockState(message.pos), sender.level().getBlockState(message.pos),
-                    Block.UPDATE_ALL
-                );
+                .getBlockEntity(message.pos, BlockEntityRegistry.VFX_GENERATOR.get())
+                .ifPresent(vfxGeneratorBlockEntity -> {
+                    message.asymmetry.decoding()
+                        .resultOrPartial(VFXGenerator.LOGGER::error)
+                        .ifPresent(consumer -> consumer.accept(vfxGeneratorBlockEntity.getParticleData()));
+                    sender.level()
+                        .sendBlockUpdated(
+                            message.pos, sender.level().getBlockState(message.pos),
+                            sender.level().getBlockState(message.pos), Block.UPDATE_ALL
+                        );
+                });
         }
     }
 }

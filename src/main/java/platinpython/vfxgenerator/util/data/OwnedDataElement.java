@@ -17,10 +17,31 @@ public class OwnedDataElement<T> extends DataElement.Simple<T> {
     }
 
     @Override
+    public synchronized void set(T value) {
+        T old = this.get();
+        super.set(value);
+        if (old.equals(value)) {
+            this.setDirty(false);
+        }
+    }
+
+    @Override
     public synchronized void setDirty(boolean dirty) {
         super.setDirty(dirty);
         if (dirty) {
             this.owner.setChanged();
+        }
+    }
+
+    public static class AlwaysInclude<T> extends OwnedDataElement<T> {
+        public AlwaysInclude(T value, BlockEntity owner) {
+            super(value, owner);
+            this.setDirty(true);
+        }
+
+        @Override
+        public boolean includeInFullEncoding() {
+            return true;
         }
     }
 

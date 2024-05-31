@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.Container;
 import net.neoforged.neoforge.network.PacketDistributor;
+import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.client.gui.widget.ToggleButton;
 import platinpython.vfxgenerator.client.gui.widget.VFXGeneratorOptionsList;
@@ -309,10 +310,13 @@ public class ParticleOptionsScreen extends Screen {
     }
 
     protected final void sendToServer() {
+        if (!ParticleData.ANY_DIRTY.test(this.particleData)) {
+            return;
+        }
         PacketDistributor.sendToServer(
-            new ParticleDataSyncPayload(
-                Asymmetry.ofEncoding(this.blockEntity.getParticleData()), this.blockEntity.getBlockPos()
-            )
+            new ParticleDataSyncPayload(Asymmetry.ofEncoding(this.particleData), this.blockEntity.getBlockPos())
         );
+        VFXGenerator.LOGGER.info("Screen: {}", this.particleData.saveToTag());
+        ParticleData.CLEANER.accept(this.particleData);
     }
 }

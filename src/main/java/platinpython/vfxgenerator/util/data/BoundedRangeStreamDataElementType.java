@@ -25,7 +25,7 @@ public class BoundedRangeStreamDataElementType<B, D, T extends Comparable<T>>
         T min,
         T max
     ) {
-        if (min.compareTo(max) < 0) {
+        if (min.compareTo(max) > 0) {
             throw new IllegalArgumentException("min must be less than or equal to max");
         }
         this.name = name;

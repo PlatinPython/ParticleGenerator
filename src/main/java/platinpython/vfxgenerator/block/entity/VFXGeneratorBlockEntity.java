@@ -5,13 +5,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.VFXGeneratorBlock;
 import platinpython.vfxgenerator.util.ClientUtils;
 import platinpython.vfxgenerator.util.Color;
@@ -109,6 +109,11 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         return tag;
     }
 
+    public CompoundTag saveDiffToTag(CompoundTag tag) {
+        tag.put(PARTICLE_DATA_KEY, this.particleData.saveDiffToTag());
+        return tag;
+    }
+
     public void loadFromTag(CompoundTag tag) {
         this.particleData.loadFromTag(Objects.requireNonNullElse(tag.get(PARTICLE_DATA_KEY), EndTag.INSTANCE));
     }
@@ -128,6 +133,13 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         builder.set(DataComponentRegistry.PARTICLE_DATA, CustomData.of(this.saveToTag(new CompoundTag())));
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove(PARTICLE_DATA_KEY);
+    }
+
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
@@ -145,19 +157,23 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
         return saveToTag(super.getUpdateTag(provider));
     }
 
-    @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
-        loadFromTag(tag);
+    public CompoundTag getDiffUpdateTag(HolderLookup.Provider provider) {
+        return saveDiffToTag(super.getUpdateTag(provider));
     }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        loadFromTag(pkt.getTag());
+        ClientboundBlockEntityDataPacket packet =
+            ClientboundBlockEntityDataPacket.create(this, (blockEntity, registryAccess) -> {
+                if (blockEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity) {
+                    return vfxGeneratorBlockEntity.getDiffUpdateTag(registryAccess);
+                    // return blockEntity.getUpdateTag(registryAccess);
+                } else {
+                    return blockEntity.getUpdateTag(registryAccess);
+                }
+            });
+        VFXGenerator.LOGGER.info("BE: {}", packet.getTag());
+        ParticleData.CLEANER.accept(this.particleData);
+        return packet;
     }
 }

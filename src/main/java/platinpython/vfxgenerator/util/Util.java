@@ -2,6 +2,7 @@ package platinpython.vfxgenerator.util;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import dev.lukebemish.codecextras.mutable.DataElementType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import platinpython.vfxgenerator.VFXGenerator;
@@ -11,9 +12,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 public class Util {
     public static final int MAX_PAYLOAD_SIZE = 1024 * 1024;
@@ -80,39 +81,22 @@ public class Util {
         return a.compareTo(b) > 0 ? a : b;
     }
 
-    @FunctionalInterface
-    public interface BooleanSupplier {
-        boolean get();
+    @SuppressWarnings("UnstableApiUsage")
+    @SafeVarargs
+    public static <D> Predicate<D> anyDirty(DataElementType<D, ?>... types) {
+        List<DataElementType<D, ?>> list = List.of(types);
+        return anyDirty(list);
     }
 
-    @FunctionalInterface
-    public interface BooleanConsumer {
-        void accept(boolean value);
-
-        default BooleanConsumer andThen(BooleanConsumer after) {
-            Objects.requireNonNull(after);
-            return (boolean t) -> {
-                accept(t);
-                after.accept(t);
-            };
-        }
-    }
-
-    @FunctionalInterface
-    public interface FloatSupplier {
-        float get();
-    }
-
-    @FunctionalInterface
-    public interface FloatConsumer {
-        void accept(float value);
-
-        default FloatConsumer andThen(FloatConsumer after) {
-            Objects.requireNonNull(after);
-            return (float t) -> {
-                accept(t);
-                after.accept(t);
-            };
-        }
+    @SuppressWarnings("UnstableApiUsage")
+    public static <D> Predicate<D> anyDirty(List<? extends DataElementType<D, ?>> types) {
+        return data -> {
+            for (var type : types) {
+                if (type.from(data).dirty()) {
+                    return true;
+                }
+            }
+            return false;
+        };
     }
 }

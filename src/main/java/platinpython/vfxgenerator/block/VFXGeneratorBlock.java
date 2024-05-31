@@ -158,11 +158,12 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             } else {
                 if (level.isClientSide) {
-                    BlockEntity tileEntity = level.getBlockEntity(pos);
-                    if (tileEntity instanceof VFXGeneratorBlockEntity) {
-                        ClientUtils.openVFXGeneratorScreen((VFXGeneratorBlockEntity) tileEntity);
-                        return InteractionResult.CONSUME;
-                    }
+                    return level.getBlockEntity(pos, BlockEntityRegistry.VFX_GENERATOR.get())
+                        .map(vfxGeneratorBlockEntity -> {
+                            ClientUtils.openVFXGeneratorScreen(vfxGeneratorBlockEntity);
+                            return InteractionResult.CONSUME;
+                        })
+                        .orElse(InteractionResult.PASS);
                 }
             }
         }
@@ -182,10 +183,8 @@ public class VFXGeneratorBlock extends BaseEntityBlock {
             DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY,
             blockItemStateProperties -> blockItemStateProperties.with(INVERTED, state.getValue(INVERTED))
         );
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof VFXGeneratorBlockEntity vfxGeneratorBlockEntity) {
-            stack.applyComponents(vfxGeneratorBlockEntity.collectComponents());
-        }
+        level.getBlockEntity(pos, BlockEntityRegistry.VFX_GENERATOR.get())
+            .ifPresent(vfxGeneratorBlockEntity -> vfxGeneratorBlockEntity.saveToItem(stack, level.registryAccess()));
         return stack;
     }
 
