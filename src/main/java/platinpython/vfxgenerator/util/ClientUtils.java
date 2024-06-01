@@ -1,6 +1,7 @@
 package platinpython.vfxgenerator.util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -87,6 +88,9 @@ public class ClientUtils {
             level = Minecraft.getInstance().level;
         }
         if (!(level instanceof ClientLevel clientLevel)) {
+            return;
+        }
+        if (Minecraft.getInstance().levelRenderer.calculateParticleLevel(true) == ParticleStatus.MINIMAL) {
             return;
         }
         VFXParticle particle = new VFXParticle(
