@@ -1,7 +1,6 @@
 package platinpython.vfxgenerator.data;
 
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -10,6 +9,7 @@ import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.block.VFXGeneratorBlock;
+import platinpython.vfxgenerator.util.Util;
 import platinpython.vfxgenerator.util.registries.BlockRegistry;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -28,7 +28,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 BlockRegistry.VFX_GENERATOR.getId().getPath(), modLoc(ModelProvider.BLOCK_FOLDER + "/vfx_generator_off")
             )
             .override()
-            .predicate(new ResourceLocation(VFXGenerator.MOD_ID, "inverted"), 1F)
+            .predicate(Util.createNamespacedResourceLocation("inverted"), 1F)
             .model(models().getExistingFile(modLoc(ModelProvider.BLOCK_FOLDER + "/vfx_generator_off_inverted")))
             .end();
     }

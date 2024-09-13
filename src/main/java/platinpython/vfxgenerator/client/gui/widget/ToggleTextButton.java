@@ -40,8 +40,8 @@ public class ToggleTextButton extends UpdateableWidget {
         RenderSystem.enableDepthTest();
         guiGraphics.blitSprite(
             this.active && this.isHoveredOrFocused()
-                ? new ResourceLocation("widget/button_highlighted")
-                : new ResourceLocation("widget/button"),
+                ? ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+                : ResourceLocation.withDefaultNamespace("widget/button"),
             this.getX(), this.getY(), this.width, this.height
         );
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

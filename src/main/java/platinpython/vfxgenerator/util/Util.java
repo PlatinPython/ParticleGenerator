@@ -21,7 +21,7 @@ public class Util {
     public static final HashFunction HASH_FUNCTION = Hashing.crc32c();
 
     public static ResourceLocation createNamespacedResourceLocation(String path) {
-        return new ResourceLocation(VFXGenerator.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(VFXGenerator.MOD_ID, path);
     }
 
     public static <E> ImmutableSortedSet<E> getThreeRandomElements(Collection<E> collection, Comparator<E> comparator) {

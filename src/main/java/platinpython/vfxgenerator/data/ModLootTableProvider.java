@@ -29,8 +29,8 @@ public class ModLootTableProvider extends LootTableProvider {
     }
 
     public static class Blocks extends BlockLootSubProvider {
-        protected Blocks() {
-            super(Collections.emptySet(), FeatureFlags.REGISTRY.allFlags());
+        protected Blocks(HolderLookup.Provider lookupProvider) {
+            super(Collections.emptySet(), FeatureFlags.REGISTRY.allFlags(), lookupProvider);
         }
 
         @Override

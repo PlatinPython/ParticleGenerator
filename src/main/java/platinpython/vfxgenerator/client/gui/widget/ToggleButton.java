@@ -24,8 +24,8 @@ public class ToggleButton extends UpdateableWidget {
             );
             guiGraphics.blitSprite(
                 this.isHoveredOrFocused()
-                    ? new ResourceLocation("widget/button_highlighted")
-                    : new ResourceLocation("widget/button"),
+                    ? ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+                    : ResourceLocation.withDefaultNamespace("widget/button"),
                 this.getX() + this.width / 2, this.getY(), this.width / 2, this.height
             );
         } else {
@@ -35,8 +35,8 @@ public class ToggleButton extends UpdateableWidget {
             );
             guiGraphics.blitSprite(
                 this.isHoveredOrFocused()
-                    ? new ResourceLocation("widget/button_highlighted")
-                    : new ResourceLocation("widget/button"),
+                    ? ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+                    : ResourceLocation.withDefaultNamespace("widget/button"),
                 this.getX(), this.getY(), this.width / 2, this.height
             );
         }

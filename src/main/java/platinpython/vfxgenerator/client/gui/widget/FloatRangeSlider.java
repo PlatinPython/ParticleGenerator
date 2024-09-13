@@ -20,11 +20,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FloatRangeSlider extends UpdateableWidget {
-    private static final ResourceLocation SLIDER_SPRITE = new ResourceLocation("widget/slider");
-    private static final ResourceLocation HIGHLIGHTED_SPRITE = new ResourceLocation("widget/slider_highlighted");
-    private static final ResourceLocation SLIDER_HANDLE_SPRITE = new ResourceLocation("widget/slider_handle");
+    private static final ResourceLocation SLIDER_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider");
+    private static final ResourceLocation HIGHLIGHTED_SPRITE =
+        ResourceLocation.withDefaultNamespace("widget/slider_highlighted");
+    private static final ResourceLocation SLIDER_HANDLE_SPRITE =
+        ResourceLocation.withDefaultNamespace("widget/slider_handle");
     private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE =
-        new ResourceLocation("widget/slider_handle_highlighted");
+        ResourceLocation.withDefaultNamespace("widget/slider_handle_highlighted");
 
     private final float minValue;
     private final float maxValue;
@@ -109,7 +111,7 @@ public class FloatRangeSlider extends UpdateableWidget {
         guiGraphics.blitSprite(getSprite(), this.getX(), this.getY(), this.width, this.height);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         guiGraphics.blitSprite(
-            new ResourceLocation("widget/button"),
+            ResourceLocation.withDefaultNamespace("widget/button"),
             this.getX() + (int) (this.leftSliderValue * (double) (this.width - 8)) + 4, this.getY() + 3,
             ((int) (this.rightSliderValue * (double) (this.width - 8)))
                 - ((int) (this.leftSliderValue * (double) (this.width - 8))),

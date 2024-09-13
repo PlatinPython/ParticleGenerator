@@ -56,7 +56,9 @@ public class ImageSelectionWidget extends UpdateableWidget {
             this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFF000000
         );
         guiGraphics.blitSprite(
-            this.selected ? new ResourceLocation("widget/button_highlighted") : new ResourceLocation("widget/button"),
+            this.selected
+                ? ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+                : ResourceLocation.withDefaultNamespace("widget/button"),
             this.getX(), this.getY(), this.width, this.height
         );
         this.renderImage(
@@ -68,22 +70,21 @@ public class ImageSelectionWidget extends UpdateableWidget {
     @SuppressWarnings("deprecation")
     private void renderImage(Matrix4f matrix, int minX, int minY, int maxX, int maxY) {
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         RenderSystem.enableBlend();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         TextureAtlasSprite sprite = selectTextureAtlasSprite();
 
         float u0 = sprite.getU0();
         float u1 = sprite.getU1();
         float v0 = sprite.getV0();
         float v1 = sprite.getV1();
-        bufferBuilder.vertex(matrix, minX, maxY, 0F).uv(u0, v1).endVertex();
-        bufferBuilder.vertex(matrix, maxX, maxY, 0F).uv(u1, v1).endVertex();
-        bufferBuilder.vertex(matrix, maxX, minY, 0F).uv(u1, v0).endVertex();
-        bufferBuilder.vertex(matrix, minX, minY, 0F).uv(u0, v0).endVertex();
-        BufferUploader.drawWithShader(bufferBuilder.end());
+        bufferBuilder.addVertex(matrix, minX, maxY, 0F).setUv(u0, v1);
+        bufferBuilder.addVertex(matrix, maxX, maxY, 0F).setUv(u1, v1);
+        bufferBuilder.addVertex(matrix, maxX, minY, 0F).setUv(u1, v0);
+        bufferBuilder.addVertex(matrix, minX, minY, 0F).setUv(u0, v0);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         RenderSystem.disableBlend();
     }
 

@@ -96,40 +96,40 @@ public class BoxRendering {
         int alpha = 128;
 
         // Top side
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
 
         // Bottom side
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
 
         // North side
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
 
         // East side
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
 
         // South side
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
 
         // West side
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
     }
 
     private static void renderBoxEdges(
@@ -148,44 +148,44 @@ public class BoxRendering {
         int alpha = 255;
 
         // West side
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
 
         // East side
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
 
         // North side (don't repeat the vertical lines that are done by the east/west sides)
-        builder.vertex(matrix, maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, minY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, minY, minZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, maxY, minZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, maxY, minZ).setColor(red, green, blue, alpha);
 
         // South side (don't repeat the vertical lines that are done by the east/west sides)
-        builder.vertex(matrix, minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, maxX, minY, maxZ).setColor(red, green, blue, alpha);
 
-        builder.vertex(matrix, maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        builder.addVertex(matrix, maxX, maxY, maxZ).setColor(red, green, blue, alpha);
+        builder.addVertex(matrix, minX, maxY, maxZ).setColor(red, green, blue, alpha);
     }
 
     private static void renderBoxEdgesFullbright(VertexConsumer builder, Matrix4f matrix, Vector3f center) {
@@ -202,116 +202,92 @@ public class BoxRendering {
         int alpha = 255;
 
         // West side
-        builder.vertex(matrix, minX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, minX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, minX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, minX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
         // East side
-        builder.vertex(matrix, maxX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, maxX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, maxX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, maxX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
         // North side (don't repeat the vertical lines that are done by the east/west sides)
-        builder.vertex(matrix, maxX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, minY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, minY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, minX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, maxY, minZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, maxY, minZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
         // South side (don't repeat the vertical lines that are done by the east/west sides)
-        builder.vertex(matrix, minX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, maxX, minY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, minX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, maxX, minY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
 
-        builder.vertex(matrix, maxX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
-        builder.vertex(matrix, minX, maxY, maxZ)
-            .color(red, green, blue, alpha)
-            .uv2(LightTexture.FULL_BRIGHT)
-            .endVertex();
+        builder.addVertex(matrix, maxX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
+        builder.addVertex(matrix, minX, maxY, maxZ)
+            .setColor(red, green, blue, alpha)
+            .setLight(LightTexture.FULL_BRIGHT);
     }
 
     private static class BoxRenderType extends RenderType {

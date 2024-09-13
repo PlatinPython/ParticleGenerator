@@ -2,13 +2,13 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-    id 'net.neoforged.gradle.userdev' version '7.0.118'
+    id 'net.neoforged.gradle.userdev' version '7.0.163'
     id 'com.diffplug.spotless' version '6.25.0'
 }
 
 version = "${minecraft_version}-${mod_version}"
 group = 'platinpython.vfxgenerator'
-archivesBaseName = 'VFX Generator'
+base.archivesName = 'VFX Generator'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
@@ -36,19 +36,19 @@ runs {
     }
 
     client_alt {
-        configure('client')
+        run('client')
 
-        programArguments.addAll '--username', 'DevAlt'
+        arguments.addAll '--username', 'DevAlt'
     }
 
     server {
         systemProperty 'forge.enabledGameTestNamespaces', 'vfxgenerator'
 
-        programArgument '--nogui'
+        argument '--nogui'
     }
 
     data {
-        programArguments.addAll '--mod', 'vfxgenerator', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        arguments.addAll '--mod', 'vfxgenerator', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
@@ -67,22 +67,22 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.6.18-beta'
+    implementation 'net.neoforged:neoforge:21.1.47'
 
-    compileOnly "org.jspecify:jspecify:0.3.0"
+    compileOnly 'org.jspecify:jspecify:1.0.0'
 
     implementation 'org.l33tlabs.twl:pngdecoder:1.0'
     jarJar('org.l33tlabs.twl:pngdecoder:[1.0,)') {
         transitive(false)
     }
 
-    implementation('dev.lukebemish:codecextras:2.2.1') {
+    implementation('dev.lukebemish:codecextras:2.3.1') {
         capabilities {
             requireCapability('dev.lukebemish:codecextras-stream')
         }
     }
 
-//    runtimeOnly "curse.maven:atlasviewer-633577:4762356"
+    runtimeOnly "curse.maven:atlasviewer-633577:5490697"
 }
 
 tasks.jarJar.configure {

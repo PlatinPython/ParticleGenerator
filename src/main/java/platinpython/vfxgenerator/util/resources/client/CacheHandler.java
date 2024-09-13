@@ -59,7 +59,8 @@ public class CacheHandler {
                     stringBuilder.append('/');
                 });
                 stringBuilder.setLength(stringBuilder.length() - 5);
-                ResourceLocation resourceLocation = new ResourceLocation(namespace, stringBuilder.toString());
+                ResourceLocation resourceLocation =
+                    ResourceLocation.fromNamespaceAndPath(namespace, stringBuilder.toString());
                 try (InputStream file = Files.newInputStream(path)) {
                     byte[] signature = file.readNBytes(8);
                     if (!Arrays.equals(signature, PNG_SIGNATURE)) {
