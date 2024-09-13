@@ -140,7 +140,7 @@ public class FloatSlider extends UpdateableWidget {
     }
 
     private float getSliderValue() {
-        return (float) (this.sliderValue * (this.maxValue - this.minValue) + this.minValue);
+        return Util.sliderToValue(this.sliderValue, this.minValue, this.maxValue, this.stepSize);
     }
 
     private void setSliderValue(double value) {

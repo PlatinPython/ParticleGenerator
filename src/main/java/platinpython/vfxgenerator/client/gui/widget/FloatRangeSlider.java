@@ -223,7 +223,7 @@ public class FloatRangeSlider extends UpdateableWidget {
     }
 
     private float getLeftSliderValue() {
-        return (float) (this.leftSliderValue * (this.maxValue - this.minValue) + this.minValue);
+        return Util.sliderToValue(this.leftSliderValue, this.minValue, this.maxValue, this.stepSize);
     }
 
     private void setLeftSliderValue(double value) {
@@ -238,7 +238,7 @@ public class FloatRangeSlider extends UpdateableWidget {
     }
 
     private float getRightSliderValue() {
-        return (float) (this.rightSliderValue * (this.maxValue - this.minValue) + this.minValue);
+        return Util.sliderToValue(this.rightSliderValue, this.minValue, this.maxValue, this.stepSize);
     }
 
     private void setRightSliderValue(double value) {

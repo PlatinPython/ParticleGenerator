@@ -53,6 +53,15 @@ public class Util {
         return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
+    public static float sliderToValue(double sliderValue, float minValue, float maxValue, float stepSize) {
+        float value = (float) map(sliderValue, 0D, 1D, minValue, maxValue);
+        if (stepSize > 0.0F) {
+            float scale = (float) Math.pow(10, Math.max(0, (int) Math.ceil(-Math.log10(stepSize))));
+            value = Math.round(value * scale / stepSize) * stepSize / scale;
+        }
+        return value;
+    }
+
     public static <T extends Comparable<T>> T clamp(T value, T min, T max) {
         return min(max(value, min), max);
     }
