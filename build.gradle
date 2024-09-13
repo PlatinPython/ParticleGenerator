@@ -81,6 +81,15 @@ dependencies {
             requireCapability('dev.lukebemish:codecextras-stream')
         }
     }
+    jarJar('dev.lukebemish:codecextras:[2.3.1,)') {
+        transitive(false)
+    }
+    jarJar('dev.lukebemish:codecextras:[2.3.1,)') {
+        capabilities {
+            requireCapability('dev.lukebemish:codecextras-stream')
+        }
+        transitive(false)
+    }
 
     runtimeOnly "curse.maven:atlasviewer-633577:5490697"
 }
