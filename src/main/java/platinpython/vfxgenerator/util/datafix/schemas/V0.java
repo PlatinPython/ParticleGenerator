@@ -3,6 +3,7 @@ package platinpython.vfxgenerator.util.datafix.schemas;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
+import com.mojang.datafixers.util.Pair;
 import dev.lukebemish.codecextras.RootSchema;
 import net.minecraft.util.datafix.schemas.NamespacedSchema;
 import platinpython.vfxgenerator.util.datafix.DataFixUtils;
@@ -28,39 +29,68 @@ public class V0 extends RootSchema {
         schema.registerType(
             false, TypeReferences.PARTICLE_DATA,
             // spotless:off
-            () -> DataFixUtils.fields(
-                DataFixUtils.whyDFUWhy("enabled", DSL.constType(DSL.bool())),
-                DataFixUtils.whyDFUWhy("selected", DSL.constType(NamespacedSchema.namespacedString())),
-                DataFixUtils.whyDFUWhy("useHSB", DSL.constType(DSL.bool())),
-                DataFixUtils.whyDFUWhy("RGBColorBot", DSL.constType(DSL.intType())),
-                DataFixUtils.whyDFUWhy("RGBColorTop", DSL.constType(DSL.intType())),
-                DataFixUtils.whyDFUWhy("hueBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("saturationBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("brightnessBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("hueTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("saturationTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("brightnessTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("lifetimeBot", DSL.constType(DSL.intType())),
-                DataFixUtils.whyDFUWhy("lifetimeTop", DSL.constType(DSL.intType())),
-                DataFixUtils.whyDFUWhy("sizeBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("sizeTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnXBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnXTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnYBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnYTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnZBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("spawnZTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionXBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionXTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionYBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionYTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionZBot", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("motionZTop", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("delay", DSL.constType(DSL.intType())),
-                DataFixUtils.whyDFUWhy("gravity", DSL.constType(DSL.floatType())),
-                DataFixUtils.whyDFUWhy("collision", DSL.constType(DSL.bool()))
+            () -> DSL.allWithRemainder(
+                field("enabled", DSL.constType(DSL.bool())),
+                field("selected", DSL.constType(NamespacedSchema.namespacedString())),
+                field("useHSB", DSL.constType(DSL.bool())),
+                DSL.and(
+                    field("RGBColorBot", DSL.constType(DSL.intType())),
+                    field("RGBColorTop", DSL.constType(DSL.intType()))
+                ),
+                DSL.and(
+                    field("hueBot", DSL.constType(DSL.floatType())),
+                    field("hueTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("saturationBot", DSL.constType(DSL.floatType())),
+                    field("saturationTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("brightnessBot", DSL.constType(DSL.floatType())),
+                    field("brightnessTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("lifetimeBot", DSL.constType(DSL.intType())),
+                    field("lifetimeTop", DSL.constType(DSL.intType()))
+                ),
+                DSL.and(
+                    field("sizeBot", DSL.constType(DSL.floatType())),
+                    field("sizeTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("spawnXBot", DSL.constType(DSL.floatType())),
+                    field("spawnXTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("spawnYBot", DSL.constType(DSL.floatType())),
+                    field("spawnYTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("spawnZBot", DSL.constType(DSL.floatType())),
+                    field("spawnZTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("motionXBot", DSL.constType(DSL.floatType())),
+                    field("motionXTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("motionYBot", DSL.constType(DSL.floatType())),
+                    field("motionYTop", DSL.constType(DSL.floatType()))
+                ),
+                DSL.and(
+                    field("motionZBot", DSL.constType(DSL.floatType())),
+                    field("motionZTop", DSL.constType(DSL.floatType()))
+                ),
+                field("delay", DSL.constType(DSL.intType())),
+                field("gravity", DSL.constType(DSL.floatType())),
+                field("collision", DSL.constType(DSL.bool()))
             )
             // spotless:on
         );
+    }
+
+    static TypeTemplate field(String name, TypeTemplate type) {
+        Pair<String, TypeTemplate> pair = DataFixUtils.whyDFUWhy(name, type);
+        return DSL.field(pair.getFirst(), pair.getSecond());
     }
 }

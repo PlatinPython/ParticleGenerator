@@ -9,16 +9,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import platinpython.vfxgenerator.util.datafix.fixes.ParticleDataCodecExtrasFix;
 import platinpython.vfxgenerator.util.datafix.fixes.ParticleDataPathFix;
 import platinpython.vfxgenerator.util.datafix.fixes.ParticleDataToListFix;
 import platinpython.vfxgenerator.util.datafix.schemas.V0;
 import platinpython.vfxgenerator.util.datafix.schemas.V1;
+import platinpython.vfxgenerator.util.datafix.schemas.V3;
 
 import java.util.function.ToIntFunction;
 
 public class DataFixers {
     public static final String DATA_VERSION_FIELD = "data_version";
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
 
     private static final DataFixerBuilder.Result DATA_FIXER = createFixerUpper();
 
@@ -68,5 +70,7 @@ public class DataFixers {
         builder.addFixer(new ParticleDataToListFix(schema, true));
         Schema schema1 = builder.addSchema(2, Schema::new);
         builder.addFixer(new ParticleDataPathFix(schema1, false));
+        Schema schema2 = builder.addSchema(3, V3::new);
+        builder.addFixer(new ParticleDataCodecExtrasFix(schema2, true));
     }
 }
