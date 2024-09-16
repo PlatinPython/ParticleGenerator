@@ -5,5 +5,5 @@ import net.minecraft.util.datafix.fixes.References;
 
 public class TypeReferences {
     public static final DSL.TypeReference PARTICLE_DATA = References.reference("particle_data");
-    public static final DSL.TypeReference SELECTED = References.reference("selected");
+    public static final DSL.TypeReference RANGE = References.reference("range");
 }

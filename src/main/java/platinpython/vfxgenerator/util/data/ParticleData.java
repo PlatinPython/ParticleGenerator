@@ -3,6 +3,7 @@ package platinpython.vfxgenerator.util.data;
 import com.google.common.collect.ImmutableSortedSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import dev.lukebemish.codecextras.Asymmetry;
 import dev.lukebemish.codecextras.mutable.DataElementType;
 import dev.lukebemish.codecextras.stream.mutable.StreamDataElementType;
@@ -19,9 +20,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.Constants;
 import platinpython.vfxgenerator.util.Util;
+import platinpython.vfxgenerator.util.datafix.DataFixers;
+import platinpython.vfxgenerator.util.datafix.TypeReferences;
 import platinpython.vfxgenerator.util.resources.DataManager;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -145,9 +149,28 @@ public class ParticleData {
         );
 
     public static final Codec<Asymmetry<Consumer<ParticleData>, ParticleData>> FULL_CODEC = Asymmetry.mapDecoding(
-        DataElementType.codec(
-            true, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X,
-            SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+        DataFixers.wrapCodec(
+            DataElementType.codec(
+                true, ENABLED, ALL_SELECTED, USE_HSB, RGB_COLOR, HUE, SATURATION, BRIGHTNESS, LIFETIME, SIZE, SPAWN_X,
+                SPAWN_Y, SPAWN_Z, MOTION_X, MOTION_Y, MOTION_Z, DELAY, GRAVITY, COLLISION, FULL_BRIGHT
+            ), TypeReferences.PARTICLE_DATA, dynamic -> {
+                Optional<? extends Dynamic<?>> selected = dynamic.get("selected").result();
+                if (selected.isEmpty()) {
+                    return -1;
+                }
+                Dynamic<?> dynamic1 = selected.get();
+                Optional<String> result = dynamic1.asString().result();
+                if (result.isPresent()) {
+                    return 0;
+                }
+                if (dynamic1.asStream().allMatch(dynamic2 -> {
+                    Optional<String> result1 = dynamic2.asString().result();
+                    return result1.map(s -> s.startsWith("vfxgenerator:particle/")).orElse(false);
+                })) {
+                    return 1;
+                }
+                return 2;
+            }
         ),
         consumer -> consumer.andThen(
             data -> data.activeSelected.set(

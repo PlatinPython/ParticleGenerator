@@ -1,14 +1,14 @@
 package platinpython.vfxgenerator.util.datafix.fixes;
 
 import com.mojang.datafixers.DataFix;
+import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.types.Type;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
+import com.mojang.datafixers.util.Pair;
+import platinpython.vfxgenerator.util.datafix.DataFixUtils;
 import platinpython.vfxgenerator.util.datafix.TypeReferences;
 
-import java.util.Optional;
+import java.util.List;
 
 public class ParticleDataPathFix extends DataFix {
     public ParticleDataPathFix(Schema outputSchema, boolean changesType) {
@@ -17,16 +17,15 @@ public class ParticleDataPathFix extends DataFix {
 
     @Override
     protected TypeRewriteRule makeRule() {
-        Type<?> type = this.getInputSchema().getType(TypeReferences.PARTICLE_DATA).findFieldType("selected");
-        return this.writeFixAndRead(
-            "ParticleDataPathFix", type, type,
-            dynamic -> dynamic.createList(
-                dynamic.asStream()
-                    .map(Dynamic::asString)
-                    .map(DataResult::result)
-                    .flatMap(Optional::stream)
-                    .map(s -> s.replace(":particle/", ":"))
-                    .map(dynamic::createString)
+        OpticFinder<Pair<String, List<String>>> selected =
+            DataFixUtils.cast(this.getInputSchema().getType(TypeReferences.PARTICLE_DATA).findField("selected"));
+        return this.fixTypeEverywhereTyped(
+            "ParticleDataPathFix", this.getInputSchema().getType(TypeReferences.PARTICLE_DATA),
+            typed -> typed.update(
+                selected,
+                pair -> pair.mapSecond(
+                    list -> list.stream().map(s -> s.replace("vfxgenerator:particle/", "vfxgenerator:")).toList()
+                )
             )
         );
     }
