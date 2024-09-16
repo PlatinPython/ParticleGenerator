@@ -5,7 +5,6 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
 import com.mojang.datafixers.util.Pair;
 import dev.lukebemish.codecextras.RootSchema;
-import net.minecraft.util.datafix.schemas.NamespacedSchema;
 import platinpython.vfxgenerator.util.datafix.DataFixUtils;
 import platinpython.vfxgenerator.util.datafix.TypeReferences;
 
@@ -31,7 +30,7 @@ public class V0 extends RootSchema {
             // spotless:off
             () -> DSL.allWithRemainder(
                 field("enabled", DSL.constType(DSL.bool())),
-                field("selected", DSL.constType(NamespacedSchema.namespacedString())),
+                field("selected", DSL.constType(DSL.string())),
                 field("useHSB", DSL.constType(DSL.bool())),
                 DSL.and(
                     field("RGBColorBot", DSL.constType(DSL.intType())),

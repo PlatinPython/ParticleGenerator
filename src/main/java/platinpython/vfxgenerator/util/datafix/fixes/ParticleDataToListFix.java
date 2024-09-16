@@ -8,6 +8,8 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.resources.ResourceLocation;
+import platinpython.vfxgenerator.VFXGenerator;
 import platinpython.vfxgenerator.util.datafix.DataFixUtils;
 import platinpython.vfxgenerator.util.datafix.TypeReferences;
 
@@ -26,11 +28,18 @@ public class ParticleDataToListFix extends DataFix {
         Type<Pair<String, List<String>>> selectedType = DataFixUtils.cast(outputType.findFieldType("selected"));
         Type<Pair<String, Boolean>> otherType = DataFixUtils.findFieldType("fullbright", outputType);
         return this.fixTypeEverywhereTyped("ParticleDataToListFix", inputType, outputType, typed -> {
+            VFXGenerator.LOGGER.info(typed);
             OpticFinder<Pair<Pair<String, Boolean>, Dynamic<?>>> finder =
                 DSL.typeFinder(DSL.and(DataFixUtils.findFieldType("collision", inputType), DSL.remainderType()));
             Type<Pair<Pair<String, Boolean>, Pair<Pair<String, Boolean>, Dynamic<?>>>> type =
                 DSL.and(DataFixUtils.findFieldType("collision", outputType), otherType, DSL.remainderType());
-            return typed.update(selectedFinder, selectedType, pair -> pair.mapSecond(List::of))
+            return typed
+                .update(
+                    selectedFinder, selectedType,
+                    pair -> pair.mapSecond(
+                        s -> List.of(ResourceLocation.fromNamespaceAndPath("vfxgenerator", "particle/" + s).toString())
+                    )
+                )
                 .update(
                     finder, type, pair -> pair.mapSecond(dynamic -> Pair.of(Pair.of("fullbright", false), dynamic))
                 );
