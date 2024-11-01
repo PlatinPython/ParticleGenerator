@@ -52,7 +52,9 @@ public class DataFixers {
                     .map(Number::intValue)
                     .result()
                     .orElse(dataVersionFunction.applyAsInt(original));
-                Dynamic<T> updated = DataFixers.getDataFixer().update(type, original, originalVersion, CURRENT_VERSION);
+                Dynamic<T> updated = DataFixers.getDataFixer()
+                    .update(type, original, originalVersion, CURRENT_VERSION)
+                    .remove(DATA_VERSION_FIELD);
                 return codec.decode(updated);
             }
         };

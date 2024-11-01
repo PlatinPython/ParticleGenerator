@@ -284,4 +284,11 @@ public class ParticleData {
             .resultOrPartial(VFXGenerator.LOGGER::error)
             .ifPresent(consumer -> consumer.accept(this));
     }
+
+    public void loadDiffFromTag(Tag tag) {
+        DIFF_CODEC.parse(NbtOps.INSTANCE, tag)
+            .flatMap(Asymmetry::decoding)
+            .resultOrPartial(VFXGenerator.LOGGER::error)
+            .ifPresent(consumer -> consumer.accept(this));
+    }
 }

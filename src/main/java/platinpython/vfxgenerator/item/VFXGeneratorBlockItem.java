@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.network.PacketDistributor;
-import platinpython.vfxgenerator.block.entity.VFXGeneratorBlockEntity;
 import platinpython.vfxgenerator.util.network.packets.VFXGeneratorDestroyParticlesPayload;
 import platinpython.vfxgenerator.util.registries.DataComponentRegistry;
 
@@ -32,12 +31,9 @@ public class VFXGeneratorBlockItem extends BlockItem {
         super.verifyComponentsAfterLoad(stack);
         if (stack.has(DataComponents.CUSTOM_DATA)) {
             stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData -> customData.update(tag -> {
-                if (tag.contains(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY, Tag.TAG_COMPOUND)) {
-                    stack.set(
-                        DataComponentRegistry.PARTICLE_DATA,
-                        CustomData.of(tag.getCompound(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY))
-                    );
-                    tag.remove(VFXGeneratorBlockEntity.PARTICLE_DATA_KEY);
+                if (tag.contains("particleData", Tag.TAG_COMPOUND)) {
+                    stack.set(DataComponentRegistry.PARTICLE_DATA, CustomData.of(tag.getCompound("particleData")));
+                    tag.remove("particleData");
                 }
             }));
         }

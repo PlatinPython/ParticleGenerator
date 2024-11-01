@@ -5,6 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
@@ -25,7 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class VFXGeneratorBlockEntity extends BlockEntity {
-    public static final String PARTICLE_DATA_KEY = "particleData";
+    public static final String PARTICLE_DATA_KEY = "particle_data";
 
     private final ParticleData particleData = new ParticleData(this);
 
@@ -114,7 +115,12 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     }
 
     public void loadFromTag(CompoundTag tag) {
-        this.particleData.loadFromTag(Objects.requireNonNullElse(tag.get(PARTICLE_DATA_KEY), EndTag.INSTANCE));
+        String particleDataKey = tag.contains(PARTICLE_DATA_KEY) ? PARTICLE_DATA_KEY : "particleData";
+        this.particleData.loadFromTag(Objects.requireNonNullElse(tag.get(particleDataKey), EndTag.INSTANCE));
+    }
+
+    public void loadDiffFromTag(CompoundTag tag) {
+        this.particleData.loadDiffFromTag(Objects.requireNonNullElse(tag.get(PARTICLE_DATA_KEY), EndTag.INSTANCE));
     }
 
     @Override
@@ -142,22 +148,22 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        saveToTag(tag);
+        this.saveToTag(tag);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        loadFromTag(tag);
+        this.loadFromTag(tag);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return saveToTag(super.getUpdateTag(provider));
+        return this.saveToTag(super.getUpdateTag(provider));
     }
 
     public CompoundTag getDiffUpdateTag(HolderLookup.Provider provider) {
-        return saveDiffToTag(super.getUpdateTag(provider));
+        return this.saveDiffToTag(super.getUpdateTag(provider));
     }
 
     @Override
@@ -172,5 +178,14 @@ public class VFXGeneratorBlockEntity extends BlockEntity {
             });
         ParticleData.CLEANER.accept(this.particleData);
         return packet;
+    }
+
+    @Override
+    public void onDataPacket(
+        Connection connection,
+        ClientboundBlockEntityDataPacket packet,
+        HolderLookup.Provider lookupProvider
+    ) {
+        this.loadDiffFromTag(packet.getTag());
     }
 }
